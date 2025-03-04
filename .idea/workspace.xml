@@ -4,21 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="baf837f0-1c70-4bb2-bba2-7f4406b78cb3" name="Changes" comment="master Add project files for React app">
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/footer.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/header.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/main/Calendar/Calendar.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/main/GeneralPlan.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/main/MainMenu.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/main/Statistic.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/main/ToDayClients.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/sidebar.js" afterDir="false" />
+    <list default="true" id="baf837f0-1c70-4bb2-bba2-7f4406b78cb3" name="Changes" comment="master Добавление репозитория в гит игнор">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/public/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/.gitignore" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,23 +37,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "C:/Users/User/IdeaProjects/Kill-1C-frontend",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "ts.external.directory.path": "I:\\IntelliJ IDEA 2023.1.1\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/User/IdeaProjects/Kill-1C-frontend&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;I:\\IntelliJ IDEA 2023.1.1\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\User\IdeaProjects\Kill-1C-frontend\frontend\src\components\main" />
@@ -84,7 +72,8 @@
       <workItem from="1738783025309" duration="2019000" />
       <workItem from="1738936638464" duration="802000" />
       <workItem from="1739784914538" duration="1889000" />
-      <workItem from="1741086389789" duration="8346000" />
+      <workItem from="1741086389789" duration="8911000" />
+      <workItem from="1741125448591" duration="35000" />
     </task>
     <task id="LOCAL-00001" summary="master Add project repository">
       <created>1738781200663</created>
@@ -100,7 +89,21 @@
       <option name="project" value="LOCAL" />
       <updated>1738784147649</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="master Добавление шаблонов для главной страницы. Распределение кода главного меню по компонентам">
+      <created>1741125217320</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1741125217320</updated>
+    </task>
+    <task id="LOCAL-00004" summary="master Добавление репозитория в гит игнор">
+      <created>1741125377830</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1741125377830</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -109,6 +112,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="master Add project repository" />
     <MESSAGE value="master Add project files for React app" />
-    <option name="LAST_COMMIT_MESSAGE" value="master Add project files for React app" />
+    <MESSAGE value="master Добавление шаблонов для главной страницы. Распределение кода главного меню по компонентам" />
+    <MESSAGE value="master Добавление репозитория в гит игнор" />
+    <option name="LAST_COMMIT_MESSAGE" value="master Добавление репозитория в гит игнор" />
   </component>
 </project>
