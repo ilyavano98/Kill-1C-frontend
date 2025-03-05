@@ -12,10 +12,10 @@ export function Sidebar() {
                         <FaHome /> Главная
                     </li>
                     <li>
-                        <FaChartLine /> Статистика
+                        <FaChartLine href={'/statistics'} /> Статистика
                     </li>
                     <li>
-                        <FaCog /> Настройки
+                        <FaCog href={'/settings'} /> Настройки
                     </li>
                 </ul>
             </div>

@@ -1,6 +1,6 @@
 import React from "react";
 import {ToDayClients} from "./ToDayClients";
-import {Calendar} from "./Calendar/Calendar";
+import {Calendar} from "./calendar/Calendar";
 import {Statistic} from "./Statistic";
 import {GeneralPlan} from "./GeneralPlan";
 

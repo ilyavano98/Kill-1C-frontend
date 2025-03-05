@@ -4,9 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="baf837f0-1c70-4bb2-bba2-7f4406b78cb3" name="Changes" comment="master Добавление репозитория в гит игнор">
+    <list default="true" id="baf837f0-1c70-4bb2-bba2-7f4406b78cb3" name="Changes" comment="master TEST">
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/settings/Settings.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/main/Calendar/Calendar.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/home/calendar/Calendar.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/main/GeneralPlan.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/home/GeneralPlan.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/main/MainMenu.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/home/MainMenu.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/main/Statistic.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/home/Statistic.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/main/ToDayClients.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/home/ToDayClients.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/sidebar.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/sidebar.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/index.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,6 +33,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="TEST" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MarkdownSettingsMigration">
@@ -73,7 +88,8 @@
       <workItem from="1738936638464" duration="802000" />
       <workItem from="1739784914538" duration="1889000" />
       <workItem from="1741086389789" duration="8911000" />
-      <workItem from="1741125448591" duration="35000" />
+      <workItem from="1741125448591" duration="1222000" />
+      <workItem from="1741197488775" duration="427000" />
     </task>
     <task id="LOCAL-00001" summary="master Add project repository">
       <created>1738781200663</created>
@@ -103,7 +119,21 @@
       <option name="project" value="LOCAL" />
       <updated>1741125377830</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="master Добавление репозитория в гит игнор">
+      <created>1741125494354</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1741125494354</updated>
+    </task>
+    <task id="LOCAL-00006" summary="master Добавление репозитория в гит игнор">
+      <created>1741125511195</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1741125511195</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
