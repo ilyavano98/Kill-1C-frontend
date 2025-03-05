@@ -4,7 +4,7 @@ import React from "react";
 export function Statistic() {
     return (
         <>
-            {/* Блок статистики */}
+            {/* Блок статистики  */}
             <div className="statistics-container">
                 <h2>Статистика</h2>
                 <p>Общие показатели загрузки и выполнения плана.</p>
