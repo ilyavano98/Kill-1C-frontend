@@ -1,5 +1,6 @@
 import {FaChartLine, FaCog, FaHome} from "react-icons/fa";
 import React from "react";
+import {Link} from "react-router-dom";
 
 export function Sidebar() {
     return (
@@ -9,13 +10,13 @@ export function Sidebar() {
                 <div className="logo">Наш Логотип</div>
                 <ul className="menu">
                     <li>
-                        <FaHome /> Главная
+                        <Link to="/" className="btn btn-primary">Главная</Link>
                     </li>
                     <li>
-                        <FaChartLine href={'/statistics'} /> Статистика
+                        <Link to="/statistics" className="btn btn-primary">Статистика</Link>
                     </li>
                     <li>
-                        <FaCog href={'/settings'} /> Настройки
+                        <Link to="/settings" className="btn btn-primary">Настройки</Link>
                     </li>
                 </ul>
             </div>
