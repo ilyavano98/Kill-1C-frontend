@@ -18,6 +18,9 @@ export function Sidebar() {
                     <li>
                         <Link to="/settings" className="btn btn-primary">Настройки</Link>
                     </li>
+                    <li>
+                        <Link to="/day" className="btn btn-primary">Календарь</Link>
+                    </li>
                 </ul>
             </div>
         </>
