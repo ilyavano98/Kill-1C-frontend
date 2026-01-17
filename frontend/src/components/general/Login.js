@@ -1,13 +1,17 @@
-import {useAuthState} from "../AuthProvider";
-import {useLocation, useNavigate} from "react-router-dom";
+
+import {Navigate, useLocation, useNavigate} from "react-router-dom";
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from "react-hook-form";
+import {useDispatch, useSelector} from "react-redux";
+import {login} from "../../app/slices/auth";
+import {useState} from "react";
 
 export { Login };
 
-function Login({ history }) {
-    const isAuthenticatedState= useAuthState(); // используем контекст для получения значений isAuthenticated и setAuth
+function Login() {
+    const { isLoggedIn } = useSelector((state) => state.auth);
+    const { message } = useSelector((state) => state.message);
     const navigate = useNavigate(); // используем хук useNavigate для навигации по маршрутам
     const location = useLocation(); // используем хук useLocation для получения текущего маршрута
     const from = location.state?.from?.pathname || "/"; // получаем маршрут, на который нужно перенаправить пользователя после авторизации
@@ -22,14 +26,26 @@ function Login({ history }) {
     const { register, handleSubmit, setError, formState } = useForm(formOptions);
     const { errors, isSubmitting } = formState;
 
+    const [loading, setLoading] = useState(false);
+    const dispatch = useDispatch();
+
     function onSubmit({ username, password }) {
-        if (username === 'test' && password === 'test') {
-            isAuthenticatedState.setIsAuth(true); // устанавливаем флаг isAuthenticated в true
-            navigate(from, { replace: true }); // перенаправляем пользователя на страницу, которую он запрашивал до авторизации
-            return {status:200};
-        } else {
-            return setError('authError', { message: "Неверный логин или пароль. Повторите попытку" });
-        }
+        navigate(from, { replace: true }); // перенаправляем пользователя на страницу, которую он запрашивал до авторизации
+        setLoading(true);
+        dispatch(login({ username, password }))
+            .unwrap()
+            .then(() => {
+                navigate(from, { replace: true });
+                window.location.reload();
+            })
+            .catch(() => {
+                setLoading(false);
+            });
+
+    }
+
+    if (isLoggedIn) {
+        return <Navigate to={from} />;
     }
     return (
         <>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from "axios";
 import {Sidebar} from "../../sidebar";
+import orderService from "../../../app/services/order.service";
 
 // const USERNAME = 'admin@mail.ru';
 // const PASSWORD = '123';
@@ -29,23 +29,13 @@ export function Day() {
     const [daysWeek, setDaysWeek] = useState([
         "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"
     ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
-        axios.get("http://localhost:8080/api/washPage")
-            .then((response) => {
-                if (response.status === 200) {
-                    setWashItems(response.data);
-                } else if (response.status === 401) {
-                    console.error('Unauthorized. Check your authentication credentials.');
-                } else if (response.status === 404) {
-                    console.error('Resource not found.');
-                } else {
-                    console.error('An unexpected error occurred.');
-                }
-            })
-            .catch((error) => {
-                console.error('Error:', error.message);
-            });
-    }, []);
+        async function fetchData() {
+            await orderService.getWashPageContent();
+        }
+        fetchData();
+        }, []);
     washItems.map(washItem => {
         return {
             ...washItem,

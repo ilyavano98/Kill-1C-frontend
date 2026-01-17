@@ -1,14 +1,14 @@
 import {Navigate, useLocation, Outlet} from 'react-router-dom';
-import {useAuthState} from "../AuthProvider";
+import {useSelector} from "react-redux";
 
 // Компонент PrivateRoute используется для защиты определенных маршрутов в приложении.
 export function PrivateRoute() {
-    const isAuthenticatedState = useAuthState(); // используем контекст для получения значения isAuthenticated
+    const { isLoggedIn } = useSelector((state) => state.auth);
     const location = useLocation(); // получаем текущий маршрут с помощью хука useLocation()
 
     return (
         // если пользователь авторизован, то рендерим дочерние элементы текущего маршрута, используя компонент Outlet
-        isAuthenticatedState.isAuth === true ? (
+        isLoggedIn ? (
             <Outlet />
         ) : (
             // если пользователь не авторизован, то перенаправляем его на маршрут /login с помощью компонента Navigate
