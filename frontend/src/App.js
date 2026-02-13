@@ -7,29 +7,34 @@ import {
     useEffect
 } from "react";
 import {
-    BrowserRouter as Router,
+    BrowserRouter as Router, Navigate,
     Route,
-    Routes,
-    Navigate,
-    Outlet,
-    useLocation,
-    useNavigate,
-    NavLink
+    Routes
 } from "react-router-dom";
 import 'react-circular-progressbar/dist/styles.css';
 import 'react-calendar/dist/Calendar.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import { useDispatch, useSelector } from "react-redux";
-import {Settings} from "./components/settings/Settings";
-import {Statistic} from "./components/home/Statistic";
-import {Day} from "./components/main/calendar/Day";
-import {Home} from "./components/general/Home";
+import {Dashboard} from "./components/dashboard/Dashboard";
 import {Login} from "./components/general/Login";
 import {PrivateRoute} from "./components/general/PrivateRoute";
 import {AuthProvider} from "./components/AuthProvider";
 
 import {logout} from "./app/slices/auth";
+import {Sidebar} from "./components/sidebar";
+import {Header} from "./components/header";
+import {Clients} from "./components/clients/Clients";
+import {Cars} from "./components/cars/Cars";
+import {Services} from "./components/servises/Services";
+import {Empoyees} from "./components/employees/Empoyees";
+import {Appointments} from "./components/appointments/Appointments";
+import {Shifts} from "./components/shifts/Shifts";
+import {Carwashes} from "./components/carwashes/Carwashes";
+import {Washbays} from "./components/washbays/Washbays";
+import {LoadDashboard} from "./components/loadDashboard/LoadDashboard";
+import {MainContents} from "./components/MainContents";
+import {Logout} from "./components/general/Logout";
 
 export function App(){
     const [showModeratorBoard, setShowModeratorBoard] = useState(false);
@@ -53,25 +58,39 @@ export function App(){
     }, [currentUser]);
 
     return (
-        // оборачиваем компонент в Router, чтобы использовать роутинг
-        <Router>
-            {/* используем контекст для передачи значения isAuthenticated и функции setAuth вниз по иерархии компонентов */}
-            <AuthProvider>
+        <>
+            {/*оборачиваем компонент в Router, чтобы использовать роутинг*/}
+            <Router>
                 <Routes>
                     {/* обычные маршруты */}
-
                     <Route path="/login" element={<Login />} />
-
-                    {/* защищённые маршруты */}
-                    <Route element={<PrivateRoute />}>
-                        {/*<Route path="/admin" element={<Admin />} />*/}
-                        <Route path="/" element={<Home />} />
-                        <Route path="/statistics" element={<Statistic />} />
-                        <Route path="/settings" element={<Settings />} />
-                        <Route path="/day" element={<Day />} />
-                    </Route>
+                    <Route path="/logout" element={<Logout />} />
+                    {/* перехват всех остальных маршрутов */}
+                    <Route path="*" element={<Navigate to="/login" replace />} />
                 </Routes>
-            </AuthProvider>
-        </Router>
+
+                {/* используем контекст для передачи значения isAuthenticated и функции setAuth вниз по иерархии компонентов */}
+                <AuthProvider>
+                    <MainContents>
+                        <Routes>
+                            {/* защищённые маршруты */}
+                            <Route element={<PrivateRoute />}>
+                                {/*<Route path="/admin" element={<Admin />} />*/}
+                                <Route path="/" element={<Dashboard />} />
+                                <Route path="/clients" element={<Clients />} />
+                                <Route path="/cars" element={<Cars />} />
+                                <Route path="/services" element={<Services />} />
+                                <Route path="/employees" element={<Empoyees />} />
+                                <Route path="/appointments" element={<Appointments />} />
+                                <Route path="/shifts" element={<Shifts />} />
+                                <Route path="/carwashes" element={<Carwashes />} />
+                                <Route path="/washbays" element={<Washbays />} />
+                                <Route path="/load-dashboard" element={<LoadDashboard />} />
+                            </Route>
+                        </Routes>
+                    </MainContents>
+                </AuthProvider>
+            </Router>
+        </>
     );
 }

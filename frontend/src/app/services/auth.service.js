@@ -1,5 +1,5 @@
 import axios from "axios";
-import {Navigate} from "react-router-dom";
+import {Navigate, useNavigate} from "react-router-dom";
 
 const API_URL = "http://localhost:8080/api/auth/";
 
@@ -12,23 +12,22 @@ const register = (username, email, password) => {
 };
 
 const login = (username, password) => {
-    // return axios
-    //     .post(API_URL + "login", {
-    //         username,
-    //         password,
-    //     })
-    //     .then((response) => {
-    //         if (response.data.username) {
-    //             localStorage.setItem("user", JSON.stringify(response.data));
-    //         }
-
-    //временные данные
-    if (username === 'admin' && password === 'admin') {
-        localStorage.setItem("authToken","12345678");
-        return localStorage.setItem("user", JSON.stringify({name: 'Admin', roles: 'ROLE_ADMIN'}));
-    }
-            return {message: "неудачная попытка авторизации"};
-        // });
+    return axios
+        .post(API_URL + "login", {
+            username,
+            password,
+        })
+        .then((response) => {
+            if (response.data.user) {
+                localStorage.setItem("user", JSON.stringify(response.data.user));
+            }
+            if (response.data.token) {
+                localStorage.setItem("authToken", JSON.stringify(response.data.token));
+            }
+            else {
+                return {message: "неудачная попытка авторизации"};
+            }
+        });
 };
 
 const logout = () => {

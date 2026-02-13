@@ -23,12 +23,25 @@ function Login() {
     const formOptions = { resolver: yupResolver(validationSchema) };
 
     // get functions to build form with useForm() hook
-    const { register, handleSubmit, setError, formState } = useForm(formOptions);
+    const { register, handleSubmit, setError, formState,reset  } = useForm(formOptions);
     const { errors, isSubmitting } = formState;
 
     const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();
+    // Состояние для переключения форм
+    const [isLoginForm, setIsLoginForm] = useState(true);
 
+    function handleRegisterClick(e) {
+        e.preventDefault();
+        setIsLoginForm(false);
+        reset(); // Очищаем форму входа при переключении
+    }
+
+    function handleLoginClick(e) {
+        e.preventDefault();
+        setIsLoginForm(true);
+        // Здесь можно очистить форму регистрации
+    }
     function onSubmit({ username, password }) {
         navigate(from, { replace: true }); // перенаправляем пользователя на страницу, которую он запрашивал до авторизации
         setLoading(true);
@@ -49,34 +62,103 @@ function Login() {
     }
     return (
         <>
-             <div className="col-md-6 offset-md-3 mt-5">
-                 <div className="card">
-                     <h4 className="card-header">Login</h4>
-                     <div className="card-body">
-                         <form onSubmit={handleSubmit(onSubmit)}>
-                             <div className="form-group">
-                                 <label>Username</label>
-                                 <input name="username" type="text" {...register('username')} className={`form-control ${errors.username ? 'is-invalid' : ''}`} />
-                                 <div className="invalid-feedback">{errors.username?.message}</div>
-                             </div>
-                             <br/>
-                             <div className="form-group">
-                                 <label>Password</label>
-                                 <input name="password" type="password" {...register('password')} className={`form-control ${errors.password ? 'is-invalid' : ''}`} />
-                                 <div className="invalid-feedback">{errors.password?.message}</div>
-                             </div>
-                             <br/>
-                             <button disabled={isSubmitting} className="btn btn-primary">
-                                 {isSubmitting && <span className="spinner-border spinner-border-sm mr-1"></span>}
-                                 Login
-                             </button>
-                             {errors.authError &&
-                                 <div className="alert alert-danger mt-3 mb-0">{errors.authError?.message}</div>
-                             }
-                         </form>
-                     </div>
-                 </div>
-             </div>
+            <div id="authContainer" className="auth-container">
+                <div className="auth-card">
+                    <div className="auth-header">
+                        <div className="auth-logo">🦈</div>
+                        <h2 className="auth-title">SharkTail</h2>
+                        <p className="auth-subtitle">Система управления автомойками</p>
+                    </div>
+
+                    {/* Форма входа - показывается только когда isLoginForm = true */}
+                    {isLoginForm ? (
+                        <form id="loginForm" className="auth-form" onSubmit={handleSubmit(onSubmit)}>
+                            {errors.authError ? <div id="loginError" className="auth-error"></div> : ''}
+
+                            <input type="text"
+                                   id="loginUsername"
+                                   className="form-control"
+                                   placeholder="Логин"
+                                   name="username"
+                                   {...register('username')}
+                                   autoComplete="username"/>
+
+                            <input type="password"
+                                   id="loginPassword"
+                                   className="form-control"
+                                   placeholder="Пароль"
+                                   name="password"
+                                   {...register('password')}
+                                   autoComplete="current-password"/>
+
+                            <button id="loginBtn" className="btn btn-primary" disabled={isSubmitting}>
+                                <i className="bi bi-box-arrow-in-right"></i>
+                                {isSubmitting ? 'Вход...' : 'Войти'}
+                            </button>
+
+                            <div className="auth-divider">
+                                <span>Нет аккаунта?</span>
+                            </div>
+
+                            <button
+                                id="showRegisterBtn"
+                                className="btn btn-outline-primary"
+                                onClick={handleRegisterClick}
+                            >
+                                <i className="bi bi-person-plus"></i> Зарегистрироваться
+                            </button>
+                        </form>
+                    ) : (
+                        // Форма регистрации - показывается когда isLoginForm = false
+                        <form id="registerForm" className="auth-form">
+                            <div id="registerError" className="auth-error"></div>
+                            <div id="registerSuccess" className="auth-success"></div>
+
+                            <input type="text"
+                                   id="registerName"
+                                   className="form-control"
+                                   placeholder="Ваше имя"/>
+
+                            <input type="text"
+                                   id="registerUsername"
+                                   className="form-control"
+                                   placeholder="Логин"
+                                   autoComplete="username"/>
+
+                            <input type="password"
+                                   id="registerPassword"
+                                   className="form-control"
+                                   placeholder="Пароль (минимум 6 символов)"
+                                   autoComplete="new-password"/>
+
+                            <input type="password"
+                                   id="registerConfirmPassword"
+                                   className="form-control"
+                                   placeholder="Подтвердите пароль"
+                                   autoComplete="new-password"/>
+
+                            <button id="registerBtn" className="btn btn-primary">
+                                <i className="bi bi-person-plus"></i> Зарегистрироваться
+                            </button>
+
+                            <div className="auth-divider">
+                                <span>Уже есть аккаунт?</span>
+                            </div>
+
+                            <button
+                                id="showLoginBtn"
+                                className="btn btn-outline-primary"
+                                onClick={handleLoginClick}
+                            >
+                                <i className="bi bi-box-arrow-in-right"></i> Войти
+                            </button>
+                        </form>
+                    )}
+                    <div className="auth-footer">
+                        <p>SharkTail © 2026</p>
+                    </div>
+                </div>
+            </div>
         </>
     );
 }
