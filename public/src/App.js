@@ -1,0 +1,49 @@
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import Layout from './components/Layout';
+import Landing from './pages/Landing';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import Clients from './pages/Clients';
+import Cars from './pages/Cars';
+import Services from './pages/Services';
+import Employees from './pages/Employees';
+import Appointments from './pages/Appointments';
+import Shifts from './pages/Shifts';
+import CarWashes from './pages/CarWashes';
+import WashBays from './pages/WashBays';
+import LoadDashboard from './pages/LoadDashboard';
+
+function App() {
+    return (
+        <BrowserRouter>
+            <AuthProvider>
+                <Routes>
+                    <Route path="/landing" element={<Landing />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    
+                    <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+                        <Route path="/" element={<Dashboard />} />
+                        <Route path="/clients" element={<Clients />} />
+                        <Route path="/cars" element={<Cars />} />
+                        <Route path="/services" element={<Services />} />
+                        <Route path="/employees" element={<Employees />} />
+                        <Route path="/appointments" element={<Appointments />} />
+                        <Route path="/shifts" element={<Shifts />} />
+                        <Route path="/carwashes" element={<CarWashes />} />
+                        <Route path="/washbays" element={<WashBays />} />
+                        <Route path="/load-dashboard" element={<LoadDashboard />} />
+                    </Route>
+                    
+                    <Route path="*" element={<Navigate to="/landing" replace />} />
+                </Routes>
+            </AuthProvider>
+        </BrowserRouter>
+    );
+}
+
+export default App;
