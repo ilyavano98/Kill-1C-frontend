@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Row, Col, Card } from 'react-bootstrap';
-import { getDashboardStats, getRecentAppointments } from '../api/api';
+import {getDashboard, getDashboardCharts, getDashboardStats, getRecentAppointments} from '../api/api';
 
 // Функция для безопасного форматирования даты
 const formatDateTime = (dateStr) => {
@@ -49,12 +49,11 @@ const Dashboard = () => {
 
     const loadDashboard = async () => {
         try {
-            const statsData = await getDashboardStats();
-            const recentData = await getRecentAppointments();
-            console.log("dashboardStats:", statsData);
-            console.log("recentAppointments:", recentData);
-            setStats(statsData);
-            setRecent(Array.isArray(recentData) ? recentData : recentData?.data || []);
+            const statsResponse = await getDashboardStats();
+            const recentResponse = await getRecentAppointments();
+
+            setStats(Array.isArray(statsResponse) ? statsResponse : statsResponse?.data || []);
+            setRecent(Array.isArray(recentResponse) ? recentResponse : recentResponse?.data || []);
         } catch (e) {
             console.error("DASHBOARD ERROR:", e);
         }
