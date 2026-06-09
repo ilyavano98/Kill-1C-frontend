@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form } from 'react-bootstrap';
 import { getEmployees, createEmployee, updateEmployee, deleteEmployee } from '../api/api';
+import {DataTable} from "./components/DataTable";
 
 const Employees = () => {
     const [items, setItems] = useState([]);
@@ -53,29 +54,47 @@ const Employees = () => {
         setShow(true);
     };
 
+
+    // Конфигурация колонок для DataTable
+    const columns = [
+        {
+            key: 'name',
+            label: 'Имя',
+            filterType: 'text'
+        },
+        {
+            key: 'phone',
+            label: 'Телефон',
+            filterType: 'text'
+        },
+        {
+            key: 'role',
+            label: 'Роль',
+            filterType: 'text'
+        }
+    ];
+
+    const addButton = (
+        <Button onClick={() => {
+            setEditing(null);
+            setForm({ name: '', phone: '', role: '' });
+            setShow(true);
+        }}>
+            + Сотрудник
+        </Button>
+    );
+
     return (
         <>
-            <Button className="mb-3" onClick={() => { setEditing(null); setForm({ name: '', phone: '', role: '' }); setShow(true); }}>
-                + Сотрудник
-            </Button>
-
-            <Table striped bordered hover>
-                <thead><tr><th>Имя</th><th>Телефон</th><th>Роль</th><th></th></tr></thead>
-                <tbody>
-                    {items.map(e => (
-                        <tr key={e.id}>
-                            <td>{e.name}</td>
-                            <td>{e.phone}</td>
-                            <td>{e.role}</td>
-                            <td>
-                                <Button size="sm" variant="warning" onClick={() => openEdit(e)}>✏️</Button>
-                                <Button size="sm" variant="danger" onClick={() => del(e.id)}>🗑️</Button>
-                            </td>
-                        </tr>
-                    ))}
-                    {items.length === 0 && <tr><td colSpan="4" className="text-center">Нет данных</td></tr>}
-                </tbody>
-            </Table>
+            <DataTable
+                data={items}
+                columns={columns}
+                idField="id"
+                itemsPerPage={12}
+                addButton={addButton}
+                onEdit={openEdit}
+                onDelete={del}
+            />
 
             <Modal show={show} onHide={() => setShow(false)}>
                 <Modal.Header closeButton><Modal.Title>{editing ? 'Редактирование' : 'Новый сотрудник'}</Modal.Title></Modal.Header>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form } from 'react-bootstrap';
 import { getCars, getClients, createCar, updateCar, deleteCar } from '../api/api';
+import {DataTable} from "./components/DataTable";
 
 const Cars = () => {
     const [cars, setCars] = useState([]);
@@ -86,70 +87,66 @@ const Cars = () => {
         setShow(true);
     };
 
+    const getCarOwnersValue = (clientIds) => clientIds
+            .map(clientId => clients.find(client => client.id === clientId)?.name || '—')
+            .join(', ');
+
+
+
+    // Конфигурация колонок для DataTable
+    const columns = [
+        {
+            key: 'plate',
+            label: 'Госномер',
+            filterType: 'text'
+        },
+        {
+            key: 'brand',
+            label: 'Марка',
+            filterType: 'text'
+        },
+        {
+            key: 'model',
+            label: 'Модель',
+            filterType: 'text'
+        },
+        {
+            key: 'year',
+            label: 'Год',
+            filterType: 'number'
+        },
+        {
+            key: 'bodyType',
+            label: 'Тип',
+            filterType: 'text'
+        },
+        {
+            key: 'carOwner',
+            label: 'Владельцы',
+            filterType: 'text',
+            getDisplayValue: (item) => getCarOwnersValue(item.clientIds)
+        },
+    ];
+
+    const addButton = (
+        <Button onClick={() => {
+            setShow(true);
+        }}>
+            + Авто
+        </Button>
+    );
+
     return (
         <>
-            <Button className="mb-3" onClick={() => setShow(true)}>
-                + Авто
-            </Button>
-
-            <Table striped bordered hover>
-                <thead>
-                    <tr>
-                        <th>Госномер</th>
-                        <th>Марка</th>
-                        <th>Модель</th>
-                        <th>Год</th>
-                        <th>Тип</th>
-                        <th>Владельцы</th>
-                        <th></th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {cars.map(c => (
-                        <tr key={c.id}>
-                            <td>{c.plate}</td>
-                            <td>{c.brand}</td>
-                            <td>{c.model}</td>
-                            <td>{c.year}</td>
-                            <td>{c.bodyType}</td>
-
-                            {/* FIX №3 — безопасное отображение владельцев */}
-                            <td>
-                                {Array.isArray(c.clientIds)
-                                    ? c.clientIds.join(', ')
-                                    : ''}
-                            </td>
-
-                            <td>
-                                <Button
-                                    size="sm"
-                                    variant="warning"
-                                    onClick={() => openEdit(c)}
-                                >
-                                    ✏️
-                                </Button>
-
-                                <Button
-                                    size="sm"
-                                    variant="danger"
-                                    onClick={() => del(c.id)}
-                                >
-                                    🗑️
-                                </Button>
-                            </td>
-                        </tr>
-                    ))}
-
-                    {cars.length === 0 && (
-                        <tr>
-                            <td colSpan="7" className="text-center">
-                                Нет данных
-                            </td>
-                        </tr>
-                    )}
-                </tbody>
-            </Table>
+            <DataTable
+                data={cars}
+                columns={columns}
+                idField="id"
+                itemsPerPage={12}
+                addButton={addButton}
+                onEdit={openEdit}
+                onDelete={del}
+            />
 
             <Modal show={show} onHide={() => setShow(false)} size="lg">
                 <Modal.Header closeButton>

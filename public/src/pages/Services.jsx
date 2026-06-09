@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form } from 'react-bootstrap';
 import { getServices, createService, updateService, deleteService } from '../api/api';
+import {DataTable} from "./components/DataTable";
 
 const Services = () => {
     const [items, setItems] = useState([]);
@@ -54,29 +55,50 @@ const Services = () => {
         setShow(true);
     };
 
+    const getWashValue = (id) => carwashes.find(c => c.id === id)?.name || id || '—';
+
+    // Конфигурация колонок для DataTable
+    const columns = [
+        {
+            key: 'name',
+            label: 'Название',
+            filterType: 'text'
+        },
+        {
+            key: 'type',
+            label: 'Тип',
+            filterType: 'text',
+            format: (val) => `${val === 'мойка' ? 'Мойка' : 'Доп. услуга'}`
+        },
+        {
+            key: 'price',
+            label: 'Цена',
+            filterType: 'number',
+            format: (val) => `${val || 0} ₽`
+        }
+    ];
+
+    const addButton = (
+        <Button onClick={() => {
+            setEditing(null);
+            setForm({ name: '', type: 'мойка', price: '' });
+            setShow(true);
+        }}>
+            + Услуга
+        </Button>
+    );
+
     return (
         <>
-            <Button className="mb-3" onClick={() => { setEditing(null); setForm({ name: '', type: 'мойка', price: '' }); setShow(true); }}>
-                + Услуга
-            </Button>
-
-            <Table striped bordered hover>
-                <thead><tr><th>Название</th><th>Тип</th><th>Цена</th><th></th></tr></thead>
-                <tbody>
-                    {items.map(s => (
-                        <tr key={s.id}>
-                            <td>{s.name}</td>
-                            <td>{s.type === 'мойка' ? 'Мойка' : 'Доп. услуга'}</td>
-                            <td>{s.price} ₽</td>
-                            <td>
-                                <Button size="sm" variant="warning" onClick={() => openEdit(s)}>✏️</Button>
-                                <Button size="sm" variant="danger" onClick={() => del(s.id)}>🗑️</Button>
-                            </td>
-                        </tr>
-                    ))}
-                    {items.length === 0 && <tr><td colSpan="4" className="text-center">Нет данных</td></tr>}
-                </tbody>
-            </Table>
+            <DataTable
+                data={items}
+                columns={columns}
+                idField="id"
+                itemsPerPage={12}
+                addButton={addButton}
+                onEdit={openEdit}
+                onDelete={del}
+            />
 
             <Modal show={show} onHide={() => setShow(false)}>
                 <Modal.Header closeButton><Modal.Title>{editing ? 'Редактирование' : 'Новая услуга'}</Modal.Title></Modal.Header>

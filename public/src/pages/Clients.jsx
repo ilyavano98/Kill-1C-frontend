@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form } from 'react-bootstrap';
 import { getClients, createClient, updateClient, deleteClient } from '../api/api';
+import {DataTable} from "./components/DataTable";
 
 const Clients = () => {
     const [clients, setClients] = useState([]);
@@ -54,31 +55,46 @@ const Clients = () => {
         setShow(true);
     };
 
+    // Конфигурация колонок для DataTable
+    const columns = [
+        {
+            key: 'name',
+            label: 'Название',
+            filterType: 'text'
+        },
+        {
+            key: 'phone',
+            label: 'Телефон',
+            filterType: 'text'
+        },
+        {
+            key: 'email',
+            label: 'Электронная почта',
+            filterType: 'text'
+        }
+    ];
+
+    const addButton = (
+        <Button onClick={() => {
+            setEditing(null);
+            setForm({ name: '', phone: '', email: '', preferences: '' });
+            setShow(true);
+        }}>
+            + Клиент
+        </Button>
+    );
+
     return (
         <>
-            <Button className="mb-3" onClick={() => { setEditing(null); setForm({ name: '', phone: '', email: '', preferences: '' }); setShow(true); }}>
-                + Клиент
-            </Button>
-
-            <Table striped bordered hover>
-                <thead>
-                    <tr><th>Имя</th><th>Телефон</th><th>Email</th><th>Действия</th></tr>
-                </thead>
-                <tbody>
-                    {clients.map(c => (
-                        <tr key={c.id}>
-                            <td>{c.name}</td>
-                            <td>{c.phone}</td>
-                            <td>{c.email}</td>
-                            <td>
-                                <Button size="sm" variant="warning" onClick={() => openEdit(c)}>✏️</Button>
-                                <Button size="sm" variant="danger" onClick={() => del(c.id)}>🗑️</Button>
-                            </td>
-                        </tr>
-                    ))}
-                    {clients.length === 0 && <tr><td colSpan="4" className="text-center">Нет данных</td></tr>}
-                </tbody>
-            </Table>
+            <DataTable
+                data={clients}
+                columns={columns}
+                idField="id"
+                itemsPerPage={12}
+                addButton={addButton}
+                onEdit={openEdit}
+                onDelete={del}
+            />
 
             <Modal show={show} onHide={() => setShow(false)}>
                 <Modal.Header closeButton><Modal.Title>{editing ? 'Редактирование' : 'Новый клиент'}</Modal.Title></Modal.Header>

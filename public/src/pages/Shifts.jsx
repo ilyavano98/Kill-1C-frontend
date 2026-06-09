@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form } from 'react-bootstrap';
 import { getShifts, getEmployees, createShift, updateShift, deleteShift } from '../api/api';
+import {formatDateTime} from "../functions/Functions";
+import {DataTable} from "./components/DataTable";
 
 const Shifts = () => {
     const [items, setItems] = useState([]);
@@ -59,34 +61,59 @@ const Shifts = () => {
         setShow(true);
     };
 
+    const getEmployeeName = (id) => employees.find(c => c.id === id)?.name || id || '—';
+
+    // Конфигурация колонок для DataTable
+    const columns = [
+        {
+            key: 'date',
+            label: 'Дата',
+            filterType: 'date'
+        },
+        {
+            key: 'employee',
+            label: 'Сотрудник',
+            filterType: 'text',
+            getDisplayValue: (item) => getEmployeeName(item.employeeId)
+        },
+        {
+            key: 'start',
+            label: 'Начало',
+            filterType: 'text'
+        },
+        {
+            key: 'end',
+            label: 'Конец',
+            filterType: 'text'
+        },
+        {
+            key: 'carsCount',
+            label: 'Количество автомобилей',
+            filterType: 'number'
+        }
+    ];
+
+    const addButton = (
+        <Button onClick={() => {
+            setEditing(null);
+            setForm({ date: '', employeeId: '', start: '', end: '', carsCount: '' });
+            setShow(true);
+        }}>
+            + Смена
+        </Button>
+    );
+
     return (
         <>
-            <Button className="mb-3" onClick={() => { setEditing(null); setForm({ date: '', employeeId: '', start: '', end: '', carsCount: '' }); setShow(true); }}>
-                + Смена
-            </Button>
-
-            <Table striped bordered hover>
-                <thead><tr><th>Дата</th><th>Сотрудник</th><th>Начало</th><th>Конец</th><th>Машин</th><th></th></tr></thead>
-                <tbody>
-                    {items.map(s => {
-                        const emp = employees.find(e => e.id === s.employeeId);
-                        return (
-                            <tr key={s.id}>
-                                <td>{s.date}</td>
-                                <td>{emp?.name || s.employeeId}</td>
-                                <td>{s.start}</td>
-                                <td>{s.end}</td>
-                                <td>{s.carsCount}</td>
-                                <td>
-                                    <Button size="sm" variant="warning" onClick={() => openEdit(s)}>✏️</Button>
-                                    <Button size="sm" variant="danger" onClick={() => del(s.id)}>🗑️</Button>
-                                </td>
-                            </tr>
-                        );
-                    })}
-                    {items.length === 0 && <tr><td colSpan="6" className="text-center">Нет данных</td></tr>}
-                </tbody>
-            </Table>
+            <DataTable
+                data={items}
+                columns={columns}
+                idField="id"
+                itemsPerPage={12}
+                addButton={addButton}
+                onEdit={openEdit}
+                onDelete={del}
+            />
 
             <Modal show={show} onHide={() => setShow(false)}>
                 <Modal.Header closeButton><Modal.Title>{editing ? 'Редактирование' : 'Новая смена'}</Modal.Title></Modal.Header>
