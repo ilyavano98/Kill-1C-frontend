@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form } from 'react-bootstrap';
+import {Table, Button, Modal, Form, Spinner} from 'react-bootstrap';
 import { getCars, getClients, createCar, updateCar, deleteCar } from '../api/api';
 import {DataTable} from "./components/DataTable";
 
@@ -8,6 +8,10 @@ const Cars = () => {
     const [clients, setClients] = useState([]);
     const [show, setShow] = useState(false);
     const [editing, setEditing] = useState(null);
+
+    // Лоадер и уведомления
+    const [loading, setLoading] = useState(true);
+    const [notification, setNotification] = useState({ show: false, message: '', variant: 'success' });
 
     const [form, setForm] = useState({
         clientIds: [],
@@ -23,6 +27,7 @@ const Cars = () => {
     }, []);
 
     const load = async () => {
+        setLoading(true);
         try {
             const carsData = await getCars();
             const clientsData = await getClients();
@@ -35,6 +40,8 @@ const Cars = () => {
             setClients(Array.isArray(clientsData) ? clientsData : clientsData?.data || []);
         } catch (e) {
             console.error("LOAD ERROR:", e);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -113,7 +120,7 @@ const Cars = () => {
         {
             key: 'year',
             label: 'Год',
-            filterType: 'number'
+            filterType: 'year'
         },
         {
             key: 'bodyType',
@@ -138,15 +145,22 @@ const Cars = () => {
 
     return (
         <>
-            <DataTable
-                data={cars}
-                columns={columns}
-                idField="id"
-                itemsPerPage={12}
-                addButton={addButton}
-                onEdit={openEdit}
-                onDelete={del}
-            />
+            {loading ? (
+                <div className="text-center my-5">
+                    <Spinner animation="border" variant="primary" />
+                    <p className="mt-2">Загрузка данных...</p>
+                </div>
+            ) : (
+                <DataTable
+                    data={cars}
+                    columns={columns}
+                    idField="id"
+                    itemsPerPage={12}
+                    addButton={addButton}
+                    onEdit={openEdit}
+                    onDelete={del}
+                />
+            )}
 
             <Modal show={show} onHide={() => setShow(false)} size="lg">
                 <Modal.Header closeButton>

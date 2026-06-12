@@ -62,7 +62,7 @@ export const DataTable = ({
             if (to && itemDate > new Date(to)) return false;
             return true;
         }
-        if (col.filterType === 'number') {
+        if (col.filterType === 'number' || col.filterType === 'year') {
             const num = Number(item[filterColumn]);
             if (filterVal.min !== undefined && filterVal.min !== '' && num < Number(filterVal.min)) return false;
             if (filterVal.max !== undefined && filterVal.max !== '' && num > Number(filterVal.max)) return false;
@@ -83,7 +83,7 @@ export const DataTable = ({
     // Сброс страницы только при изменении фильтра (колонка или значение)
     useEffect(() => {
         setCurrentPage(1);
-    }, [filterColumn, filterValues, customFilters]);
+    }, [filterColumn, filterValues/*, customFilters*/]);
 
     // Не сбрасываем страницу при изменении data.length (чтобы пагинация работала без отката)
     // Добавление/удаление записей через кнопки вызовет перезагрузку данных, и тогда data.length изменится,
@@ -162,6 +162,23 @@ export const DataTable = ({
                         <Form.Control
                             type="number"
                             placeholder="Цена до"
+                            value={value.max || ''}
+                            onChange={e => handleFilterChange({ ...value, max: e.target.value })}
+                        />
+                    </div>
+                );
+            case 'year':
+                return (
+                    <div className="d-flex gap-2">
+                        <Form.Control
+                            type="number"
+                            placeholder="От"
+                            value={value.min || ''}
+                            onChange={e => handleFilterChange({ ...value, min: e.target.value })}
+                        />
+                        <Form.Control
+                            type="number"
+                            placeholder="До"
                             value={value.max || ''}
                             onChange={e => handleFilterChange({ ...value, max: e.target.value })}
                         />
