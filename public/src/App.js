@@ -16,10 +16,20 @@ import Shifts from './pages/Shifts';
 import CarWashes from './pages/CarWashes';
 import WashBays from './pages/WashBays';
 import LoadDashboard from './pages/LoadDashboard';
-
+import {Provider} from "react-redux";
+import { configureStore } from '@reduxjs/toolkit';
+import configReducer from './features/config/configSlice'; // ваш слайс
+// Создаём store
+const store = configureStore({
+    reducer: {
+        config: configReducer,
+        // здесь могут быть другие редюсеры, если они есть
+    },
+});
 function App() {
     return (
         <BrowserRouter>
+            <Provider store={store}>
             <AuthProvider>
                 <Routes>
                     <Route path="/landing" element={<Landing />} />
@@ -42,6 +52,7 @@ function App() {
                     <Route path="*" element={<Navigate to="/landing" replace />} />
                 </Routes>
             </AuthProvider>
+            </Provider>
         </BrowserRouter>
     );
 }

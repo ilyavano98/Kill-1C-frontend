@@ -85,3 +85,4 @@ export const getLoadDashboard = (date) => api.get('/load-dashboard', { params: {
 
 // Поиск
 export const search = (query) => api.get('/search', { params: { q: query } });
+export default api;

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Spinner, Alert } from 'react-bootstrap';
+import { Button, Spinner, Alert, Dropdown } from 'react-bootstrap';
 import { getAppointments, getClients, getCars, getServices, getEmployees, getWashBays, createAppointment, updateAppointment, deleteAppointment } from '../api/api';
-import { formatDateTime, getDateObject } from '../functions/Functions';
+import { formatDateTime } from '../functions/Functions';
 import { DataTable } from "./components/DataTable";
 import { AppointmentModal } from "../modals/AppointmentModal";
+import TableEditor from '../components/TableEditor';
 
+// Вспомогательные функции (без изменений)
 const getStatusText = (status) => {
     const map = {
         'pending': 'Ожидает',
@@ -30,6 +32,7 @@ const getStatusClass = (status) => {
 };
 
 const Appointments = () => {
+    // ----- Состояния -----
     const [items, setItems] = useState([]);
     const [clients, setClients] = useState([]);
     const [cars, setCars] = useState([]);
@@ -49,8 +52,6 @@ const Appointments = () => {
         comment: '',
         washBayId: ''
     });
-
-    // Лоадер и уведомления
     const [loading, setLoading] = useState(true);
     const [notification, setNotification] = useState({ show: false, message: '', variant: 'success' });
 
@@ -89,7 +90,8 @@ const Appointments = () => {
         }
     };
 
-    const save = async () => {
+    // ----- CRUD для записей -----
+    const saveAppointment = async () => {
         setLoading(true);
         try {
             const payload = { ...form, price: Number(form.price) };
@@ -122,7 +124,7 @@ const Appointments = () => {
         }
     };
 
-    const del = async (id) => {
+    const deleteAppointmentRecord = async (id) => {
         if (!window.confirm('Удалить запись?')) return;
         setLoading(true);
         try {
@@ -153,18 +155,18 @@ const Appointments = () => {
         setShow(true);
     };
 
-    // Функции получения имён по ID
+    // ----- Функции получения имён по ID -----
     const getClientName = (id) => clients.find(c => c.id === id)?.name || id || '—';
     const getCarPlate = (id) => cars.find(c => c.id === id)?.plate || id || '—';
     const getServiceName = (id) => services.find(s => s.id === id)?.name || id || '—';
     const getEmployeeName = (id) => employees.find(e => e.id === id)?.name || id || '—';
     const getBayName = (id) => bays.find(b => b.id === id)?.name || id || '—';
 
-    // Получить уникальные названия услуг для выпадающего списка
+    // ----- Уникальные услуги для фильтра -----
     const uniqueServices = [...new Set(items.map(item => getServiceName(item.serviceId)))].filter(Boolean).sort();
 
-    // Конфигурация колонок для DataTable
-    const columns = [
+    // ----- Базовое описание всех возможных колонок -----
+    const allColumns = [
         { key: 'dateTime', label: 'Время', filterType: 'date', format: formatDateTime },
         { key: 'clientId', label: 'Клиент', filterType: 'text', getDisplayValue: (item) => getClientName(item.clientId) },
         { key: 'carId', label: 'Авто', filterType: 'text', getDisplayValue: (item) => getCarPlate(item.carId) },
@@ -193,6 +195,7 @@ const Appointments = () => {
         </Button>
     );
 
+    // ----- Рендер -----
     return (
         <>
             {/* Уведомления */}
@@ -204,23 +207,30 @@ const Appointments = () => {
                 </div>
             )}
 
-            {loading ? (
-                <div className="text-center my-5">
-                    <Spinner animation="border" variant="primary" />
-                    <p className="mt-2">Загрузка данных...</p>
-                </div>
-            ) : (
-                <DataTable
-                    data={items}
-                    columns={columns}
-                    idField="id"
-                    itemsPerPage={12}
-                    addButton={addButton}
-                    onEdit={openEdit}
-                    onDelete={del}
-                />
-            )}
+            <TableEditor tableName="appointments" allColumns={allColumns}>
+                {({ visibleColumns, isEditing }) => (
+                    <>
+                        {loading ? (
+                            <div className="text-center my-5">
+                                <Spinner animation="border" variant="primary" />
+                                <p className="mt-2">Загрузка данных...</p>
+                            </div>
+                        ) : (
+                            <DataTable
+                                data={items}
+                                columns={visibleColumns} // уже обработанные с крестиками
+                                idField="id"
+                                itemsPerPage={12}
+                                addButton={addButton}
+                                onEdit={openEdit}
+                                onDelete={deleteAppointmentRecord}
+                            />
+                        )}
+                    </>
+                )}
+            </TableEditor>
 
+            {/* Модальное окно для создания/редактирования записи */}
             <AppointmentModal
                 show={show}
                 onHide={() => setShow(false)}
@@ -232,8 +242,8 @@ const Appointments = () => {
                 services={services}
                 employees={employees}
                 bays={bays}
-                onSave={save}
-                loading={loading} // можно также заблокировать кнопки в модалке во время сохранения
+                onSave={saveAppointment}
+                loading={loading}
             />
         </>
     );
