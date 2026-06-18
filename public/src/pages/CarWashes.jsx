@@ -1,127 +1,99 @@
-import React, { useState, useEffect } from 'react';
-import {Table, Button, Modal, Form, Spinner} from 'react-bootstrap';
+import React from 'react';
+import { Button, Spinner } from 'react-bootstrap';
 import { getCarWashes, createCarWash, updateCarWash, deleteCarWash } from '../api/api';
-import {DataTable} from "./components/DataTable";
+import { DataTable } from "./components/DataTable";
+import TableEditor from '../components/TableEditor';
+import EntityModal from './components/EntityModal';
+import { useCrud } from '../hooks/useCrud';
 
 const CarWashes = () => {
-    const [items, setItems] = useState([]);
-    const [show, setShow] = useState(false);
-    const [editing, setEditing] = useState(null);
-    const [form, setForm] = useState({ name: '', address: '', isActive: true });
-
-    // Лоадер и уведомления
-    const [loading, setLoading] = useState(true);
-    const [notification, setNotification] = useState({ show: false, message: '', variant: 'success' });
-
-    useEffect(() => { load(); }, []);
-
-    const load = async () => {
-        setLoading(true)
-        try {
-            const data = await getCarWashes();
-            console.log("carWashesData:", data);
-            setItems(Array.isArray(data) ? data : data?.data || []);
-        } catch (e) {
-            console.error("LOAD ERROR:", e);
-        } finally {
-            setLoading(false)
-        }
+    const initialForm = {
+        name: '',
+        address: '',
+        isActive: true,
     };
 
-    const save = async () => {
-        try {
-            if (editing) {
-                await updateCarWash(editing.id, form);
-            } else {
-                await createCarWash(form);
-            }
-            setShow(false);
-            setEditing(null);
-            setForm({ name: '', address: '', isActive: true });
-            await load();
-        } catch (e) {
-            console.error("SAVE ERROR:", e);
-        }
-    };
-
-    const del = async (id) => {
-        if (window.confirm('Удалить?')) {
-            await deleteCarWash(id);
-            await load();
-        }
-    };
-
-    const openEdit = (item) => {
-        setEditing(item);
-        setForm({
+    const {
+        items,
+        loading,
+        form,
+        setForm,
+        show,
+        setShow,
+        editing,
+        save,
+        del,
+        openEdit,
+        openAdd,
+    } = useCrud({
+        getItems: getCarWashes,
+        createItem: createCarWash,
+        updateItem: updateCarWash,
+        deleteItem: deleteCarWash,
+        initialForm,
+        entityName: 'Мойка',
+        transformPayload: (data) => ({
+            ...data,
+            isActive: Boolean(data.isActive),
+        }),
+        transformItemForEdit: (item) => ({
             name: item.name || '',
             address: item.address || '',
-            isActive: item.isActive !== undefined ? item.isActive : true
-        });
-        setShow(true);
-    };
+            isActive: item.isActive !== undefined ? item.isActive : true,
+        }),
+    });
 
-    // Конфигурация колонок для DataTable
-    const columns = [
-        {
-            key: 'name',
-            label: 'Название',
-            filterType: 'text'
-        },
-        {
-            key: 'address',
-            label: 'Адрес',
-            filterType: 'text'
-        },
-        {
-            key: 'isActive',
-            label: 'Активна',
-            filterType: 'text',
-            format: (val) => `${val ? 'Да' : 'Нет'}`
-        }
+    // ----- Базовое описание всех возможных колонок -----
+    const allColumns = [
+        { key: 'name', label: 'Название', filterType: 'text' },
+        { key: 'address', label: 'Адрес', filterType: 'text' },
+        { key: 'isActive', label: 'Активна', filterType: 'text', format: (val) => (val ? 'Да' : 'Нет') },
     ];
 
-    const addButton = (
-        <Button onClick={() => {
-            setEditing(null);
-            setForm({ name: '', address: '', isActive: true });
-            setShow(true);
-        }}>
-            + Мойка
-        </Button>
-    );
+    // ----- Поля для модального окна -----
+    const fields = [
+        { key: 'name', placeholder: 'Название мойки' },
+        { key: 'address', placeholder: 'Адрес' },
+        { key: 'isActive', fieldType: 'checkbox', label: 'Активна' },
+    ];
+
+    const addButton = <Button onClick={openAdd}>+ Мойка</Button>;
 
     return (
         <>
-            {loading ? (
-                <div className="text-center my-5">
-                    <Spinner animation="border" variant="primary" />
-                    <p className="mt-2">Загрузка данных...</p>
-                </div>
-            ) : (
-                <DataTable
-                    data={items}
-                    columns={columns}
-                    idField="id"
-                    itemsPerPage={12}
-                    addButton={addButton}
-                    onEdit={openEdit}
-                    onDelete={del}
-                />
-            )}
+            <TableEditor tableName="carwashes" allColumns={allColumns}>
+                {({ visibleColumns }) => (
+                    <>
+                        {loading ? (
+                            <div className="text-center my-5">
+                                <Spinner animation="border" variant="primary" />
+                                <p className="mt-2">Загрузка данных...</p>
+                            </div>
+                        ) : (
+                            <DataTable
+                                data={items}
+                                columns={visibleColumns}
+                                idField="id"
+                                itemsPerPage={12}
+                                addButton={addButton}
+                                onEdit={openEdit}
+                                onDelete={del}
+                            />
+                        )}
+                    </>
+                )}
+            </TableEditor>
 
-            <Modal show={show} onHide={() => setShow(false)}>
-                <Modal.Header closeButton><Modal.Title>{editing ? 'Редактирование' : 'Новая мойка'}</Modal.Title></Modal.Header>
-                <Modal.Body>
-                    <Form.Control className="mb-2" placeholder="Название мойки" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
-                    <Form.Control className="mb-2" placeholder="Адрес" value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} />
-                    <Form.Check type="checkbox" label="Активна" checked={form.isActive} onChange={e => setForm({ ...form, isActive: e.target.checked })} />
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShow(false)}>Отмена</Button>
-                    <Button onClick={save}>Сохранить</Button>
-                </Modal.Footer>
-            </Modal>
+            <EntityModal
+                show={show}
+                onHide={() => setShow(false)}
+                title={editing ? 'Редактирование мойки' : 'Новая мойка'}
+                fields={fields}
+                form={form}
+                setForm={setForm}
+                onSave={save}
+                loading={loading}
+            />
         </>
     );
 };

@@ -247,7 +247,7 @@ export const DataTable = ({
                 <thead>
                 <tr>
                     {columns.map(col => (
-                        <th key={col.key}>{col.label}</th>
+                        <th key={col.key}>{col.header || col.label}</th>
                     ))}
                     {(onEdit || onDelete) && <th></th>}
                 </tr>
