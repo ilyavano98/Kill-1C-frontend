@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
+import {formatDateTime} from "../functions/Functions";
 
 export const AppointmentModal = ({
                               show,
@@ -26,13 +27,13 @@ export const AppointmentModal = ({
                 <Form.Control
                     className="mb-2"
                     type="datetime-local"
-                    value={form.dateTime}
+                    value={form.dateTime || ''}
                     onChange={e => setForm({ ...form, dateTime: e.target.value })}
                 />
 
                 <Form.Select
                     className="mb-2"
-                    value={form.clientId}
+                    value={form.clientId || ''}
                     onChange={e => setForm({ ...form, clientId: e.target.value, carId: '' })}
                 >
                     <option value="">Выберите клиента</option>
@@ -43,7 +44,7 @@ export const AppointmentModal = ({
 
                 <Form.Select
                     className="mb-2"
-                    value={form.carId}
+                    value={form.carId || ''}
                     onChange={e => setForm({ ...form, carId: e.target.value })}
                     disabled={!form.clientId}
                 >
@@ -55,7 +56,7 @@ export const AppointmentModal = ({
 
                 <Form.Select
                     className="mb-2"
-                    value={form.serviceId}
+                    value={form.serviceId || ''}
                     onChange={e => {
                         const selectedService = services.find(s => s.id == e.target.value);
                         setForm({
@@ -73,7 +74,7 @@ export const AppointmentModal = ({
 
                 <Form.Select
                     className="mb-2"
-                    value={form.employeeId}
+                    value={form.employeeId || ''}
                     onChange={e => setForm({ ...form, employeeId: e.target.value })}
                 >
                     <option value="">Выберите сотрудника</option>
@@ -84,7 +85,7 @@ export const AppointmentModal = ({
 
                 <Form.Select
                     className="mb-2"
-                    value={form.washBayId}
+                    value={form.washBayId || ''}
                     onChange={e => setForm({ ...form, washBayId: e.target.value })}
                 >
                     <option value="">Не выбрано</option>
@@ -95,7 +96,7 @@ export const AppointmentModal = ({
 
                 <Form.Select
                     className="mb-2"
-                    value={form.status}
+                    value={form.status || ''}
                     onChange={e => setForm({ ...form, status: e.target.value })}
                 >
                     <option value="pending">Ожидает</option>
@@ -110,14 +111,14 @@ export const AppointmentModal = ({
                     className="mb-2"
                     type="number"
                     placeholder="Цена"
-                    value={form.price}
+                    value={form.price || ''}
                     onChange={e => setForm({ ...form, price: e.target.value })}
                 />
 
                 <Form.Control
                     as="textarea"
                     placeholder="Комментарий"
-                    value={form.comment}
+                    value={form.comment || ''}
                     onChange={e => setForm({ ...form, comment: e.target.value })}
                 />
             </Modal.Body>

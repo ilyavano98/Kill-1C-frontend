@@ -1,138 +1,122 @@
-import React, { useState, useEffect } from 'react';
-import {Table, Button, Modal, Form, Spinner} from 'react-bootstrap';
+import React from 'react';
+import { Button, Spinner } from 'react-bootstrap';
 import { getWashBays, getCarWashes, createWashBay, updateWashBay, deleteWashBay } from '../api/api';
-import {DataTable} from "./components/DataTable";
+import { DataTable } from "./components/DataTable";
+import TableEditor from '../components/TableEditor';
+import EntityModal from './components/EntityModal';
+import { useCrud } from '../hooks/useCrud';
 
 const WashBays = () => {
-    const [items, setItems] = useState([]);
-    const [carwashes, setCarwashes] = useState([]);
-    const [show, setShow] = useState(false);
-    const [editing, setEditing] = useState(null);
-    const [form, setForm] = useState({ carWashId: '', name: '', description: '', isActive: true });
-
-    // Лоадер и уведомления
-    const [loading, setLoading] = useState(true);
-    const [notification, setNotification] = useState({ show: false, message: '', variant: 'success' });
-
-    useEffect(() => { load(); }, []);
-
-    const load = async () => {
-        setLoading(true);
-        try {
-            const washBaysData = await getWashBays();
-            const carWashesData = await getCarWashes();
-            console.log("washBaysData:", washBaysData);
-            setItems(Array.isArray(washBaysData) ? washBaysData : washBaysData?.data || []);
-            setCarwashes(Array.isArray(carWashesData) ? carWashesData : carWashesData?.data || []);
-        } catch (e) {
-            console.error("LOAD ERROR:", e);
-        } finally {
-            setLoading(false);
-        }
+    const initialForm = {
+        carWashId: '',
+        name: '',
+        description: '',
+        isActive: true,
     };
 
-    const save = async () => {
-        try {
-            if (editing) {
-                await updateWashBay(editing.id, form);
-            } else {
-                await createWashBay(form);
-            }
-            setShow(false);
-            setEditing(null);
-            setForm({ carWashId: '', name: '', description: '', isActive: true });
-            await load();
-        } catch (e) {
-            console.error("SAVE ERROR:", e);
-        }
-    };
-
-    const del = async (id) => {
-        if (window.confirm('Удалить?')) {
-            await deleteWashBay(id);
-            await load();
-        }
-    };
-
-    const openEdit = (item) => {
-        setEditing(item);
-        setForm({
+    const {
+        items,
+        loading,
+        form,
+        setForm,
+        show,
+        setShow,
+        editing,
+        save,
+        del,
+        openEdit,
+        openAdd,
+    } = useCrud({
+        getItems: getWashBays,
+        createItem: createWashBay,
+        updateItem: updateWashBay,
+        deleteItem: deleteWashBay,
+        initialForm,
+        entityName: 'Место',
+        transformPayload: (data) => ({ ...data, isActive: Boolean(data.isActive) }),
+        transformItemForEdit: (item) => ({
             carWashId: item.carWashId || '',
             name: item.name || '',
             description: item.description || '',
-            isActive: item.isActive !== undefined ? item.isActive : true
-        });
-        setShow(true);
-    };
+            isActive: item.isActive !== undefined ? item.isActive : true,
+        }),
+    });
+
+    const [carwashes, setCarwashes] = React.useState([]);
+    React.useEffect(() => {
+        const load = async () => {
+            try {
+                const data = await getCarWashes();
+                setCarwashes(Array.isArray(data) ? data : data?.data || []);
+            } catch (e) {
+                console.error('LOAD CARWASHES ERROR:', e);
+            }
+        };
+        load();
+    }, []);
 
     const getWashValue = (id) => carwashes.find(c => c.id === id)?.name || id || '—';
 
-    // Конфигурация колонок для DataTable
-    const columns = [
-        {
-            key: 'name',
-            label: 'Название',
-            filterType: 'text'
-        },
+    const allColumns = [
+        { key: 'name', label: 'Название', filterType: 'text' },
         {
             key: 'carWashId',
-            label: 'Статус',
+            label: 'Автомойка',
             filterType: 'text',
-            getDisplayValue: (item) => getWashValue(item.carWashId)
+            getDisplayValue: (item) => getWashValue(item.carWashId),
         },
-        {
-            key: 'isActive',
-            label: 'Активно',
-            filterType: 'text',
-            format: (val) => `${val ? 'Да' : 'Нет'}`
-        }
+        { key: 'isActive', label: 'Активно', filterType: 'text', format: (val) => (val ? 'Да' : 'Нет') },
     ];
 
-    const addButton = (
-        <Button onClick={() => {
-            setEditing(null);
-            setForm({ carWashId: '', name: '', description: '', isActive: true });
-            setShow(true);
-        }}>
-            + Место
-        </Button>
-    );
+    const fields = [
+        {
+            key: 'carWashId',
+            fieldType: 'select',
+            placeholder: 'Выберите мойку',
+            options: carwashes.map(cw => ({ value: cw.id, label: cw.name })),
+        },
+        { key: 'name', placeholder: 'Название места' },
+        { key: 'description', placeholder: 'Описание' },
+        { key: 'isActive', fieldType: 'checkbox', label: 'Активно' },
+    ];
+
+    const addButton = <Button onClick={openAdd}>+ Место</Button>;
 
     return (
         <>
-            {loading ? (
-                <div className="text-center my-5">
-                    <Spinner animation="border" variant="primary" />
-                    <p className="mt-2">Загрузка данных...</p>
-                </div>
-            ) : (
-                <DataTable
-                    data={items}
-                    columns={columns}
-                    idField="id"
-                    itemsPerPage={12}
-                    addButton={addButton}
-                    onEdit={openEdit}
-                    onDelete={del}
-                />
-            )}
+            <TableEditor tableName="washbays" allColumns={allColumns}>
+                {({ visibleColumns }) => (
+                    <>
+                        {loading ? (
+                            <div className="text-center my-5">
+                                <Spinner animation="border" variant="primary" />
+                                <p className="mt-2">Загрузка данных...</p>
+                            </div>
+                        ) : (
+                            <DataTable
+                                data={items}
+                                columns={visibleColumns}
+                                idField="id"
+                                itemsPerPage={12}
+                                addButton={addButton}
+                                onEdit={openEdit}
+                                onDelete={del}
+                            />
+                        )}
+                    </>
+                )}
+            </TableEditor>
 
-            <Modal show={show} onHide={() => setShow(false)}>
-                <Modal.Header closeButton><Modal.Title>{editing ? 'Редактирование' : 'Новое место'}</Modal.Title></Modal.Header>
-                <Modal.Body>
-                    <Form.Select className="mb-2" value={form.carWashId} onChange={e => setForm({ ...form, carWashId: e.target.value })}>
-                        <option value="">Выберите мойку</option>
-                        {carwashes.map(cw => <option key={cw.id} value={cw.id}>{cw.name}</option>)}
-                    </Form.Select>
-                    <Form.Control className="mb-2" placeholder="Название места" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
-                    <Form.Control className="mb-2" placeholder="Описание" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
-                    <Form.Check type="checkbox" label="Активно" checked={form.isActive} onChange={e => setForm({ ...form, isActive: e.target.checked })} />
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShow(false)}>Отмена</Button>
-                    <Button onClick={save}>Сохранить</Button>
-                </Modal.Footer>
-            </Modal>
+            <EntityModal
+                show={show}
+                onHide={() => setShow(false)}
+                title={editing ? 'Редактирование места' : 'Новое место'}
+                fields={fields}
+                form={form}
+                setForm={setForm}
+                onSave={save}
+                loading={loading}
+            />
         </>
     );
 };

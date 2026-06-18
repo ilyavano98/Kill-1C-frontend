@@ -21,3 +21,18 @@ export const getDateObject = (dateStr) => {
     else return null;
 };
 
+// Функция преобразования серверной даты в формат для input
+export const toDateTimeLocal = (isoString) => {
+    if (!isoString) return '';
+    // Удаляем квадратные скобки и все, что внутри них
+    const clean = isoString.split('[')[0];
+    const date = new Date(clean);
+    if (isNaN(date.getTime())) return '';
+    // Форматируем без временной зоны, как локальное время пользователя
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+};

@@ -12,8 +12,29 @@ export const DEFAULT_CONFIG = {
             appointments: {
                 visibleColumns: ['dateTime', 'clientId', 'carId', 'serviceId', 'employeeId', 'status', 'washBayId', 'price'],
             },
+            carWashes: {
+                visibleColumns: ['name', 'address', 'isActive'],
+            },
             clients: {
                 visibleColumns: ['id', 'name', 'phone', 'email'],
+            },
+            dashBoard: {
+                visibleColumns: [],
+            },
+            employees: {
+                visibleColumns: ['name', 'phone', 'role'],
+            },
+            loadDashboard: {
+                visibleColumns: [],
+            },
+            services: {
+                visibleColumns: ['name', 'type', 'price'],
+            },
+            shifts: {
+                visibleColumns: ['employee', 'start', 'end', 'carsCount'],
+            },
+            washBays: {
+                visibleColumns: ['name', 'carWashId', 'isActive'],
             },
         },
         labels: {

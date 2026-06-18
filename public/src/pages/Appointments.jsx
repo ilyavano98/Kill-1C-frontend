@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Spinner, Alert, Dropdown } from 'react-bootstrap';
+import React, {useEffect, useState} from 'react';
+import { Button, Spinner } from 'react-bootstrap';
 import { getAppointments, getClients, getCars, getServices, getEmployees, getWashBays, createAppointment, updateAppointment, deleteAppointment } from '../api/api';
-import { formatDateTime } from '../functions/Functions';
+import {formatDateTime, toDateTimeLocal} from '../functions/Functions';
 import { DataTable } from "./components/DataTable";
 import { AppointmentModal } from "../modals/AppointmentModal";
 import TableEditor from '../components/TableEditor';
+import { useCrud } from '../hooks/useCrud';
 
 // Вспомогательные функции (без изменений)
 const getStatusText = (status) => {
@@ -32,16 +33,8 @@ const getStatusClass = (status) => {
 };
 
 const Appointments = () => {
-    // ----- Состояния -----
-    const [items, setItems] = useState([]);
-    const [clients, setClients] = useState([]);
-    const [cars, setCars] = useState([]);
-    const [services, setServices] = useState([]);
-    const [employees, setEmployees] = useState([]);
-    const [bays, setBays] = useState([]);
-    const [show, setShow] = useState(false);
-    const [editing, setEditing] = useState(null);
-    const [form, setForm] = useState({
+    // --- Данные для формы ---
+    const initialForm = {
         dateTime: '',
         clientId: '',
         carId: '',
@@ -51,109 +44,57 @@ const Appointments = () => {
         price: '',
         comment: '',
         washBayId: ''
+    };
+
+    // --- Используем хук useCrud ---
+    const {
+        items,
+        loading,
+        form,
+        setForm,
+        show,
+        setShow,
+        editing,
+        save,
+        del,
+        openEdit,
+        openAdd,
+    } = useCrud({
+        getItems: getAppointments,
+        createItem: createAppointment,
+        updateItem: updateAppointment,
+        deleteItem: deleteAppointment,
+        initialForm,
+        entityName: 'Запись',
+        transformPayload: (data) => ({ ...data, price: Number(data.price) }),
+        transformItemForEdit: (item) => ({...item, dateTime: toDateTimeLocal(item.dateTime) }),
     });
-    const [loading, setLoading] = useState(true);
-    const [notification, setNotification] = useState({ show: false, message: '', variant: 'success' });
 
-    useEffect(() => {
-        load();
-    }, []);
+    // --- Дополнительные состояния для справочников ---
+    const [clients, setClients] = useState([]);
+    const [cars, setCars] = useState([]);
+    const [services, setServices] = useState([]);
+    const [employees, setEmployees] = useState([]);
+    const [bays, setBays] = useState([]);
 
-    const showNotification = (message, variant = 'success') => {
-        setNotification({ show: true, message, variant });
-        setTimeout(() => {
-            setNotification(prev => ({ ...prev, show: false }));
-        }, 3000);
-    };
-
-    const load = async () => {
-        setLoading(true);
-        try {
-            const appointmentsData = await getAppointments({});
-            const clientsData = await getClients();
-            const carsData = await getCars();
-            const servicesData = await getServices();
-            const employeesData = await getEmployees();
-            const baysData = await getWashBays();
-
-            setItems(Array.isArray(appointmentsData) ? appointmentsData : appointmentsData?.data || []);
-            setClients(Array.isArray(clientsData) ? clientsData : clientsData?.data || []);
-            setCars(Array.isArray(carsData) ? carsData : carsData?.data || []);
-            setServices(Array.isArray(servicesData) ? servicesData : servicesData?.data || []);
-            setEmployees(Array.isArray(employeesData) ? employeesData : employeesData?.data || []);
-            setBays(Array.isArray(baysData) ? baysData : baysData?.data || []);
-        } catch (e) {
-            console.error("LOAD ERROR:", e);
-            showNotification('Ошибка загрузки данных', 'danger');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // ----- CRUD для записей -----
-    const saveAppointment = async () => {
-        setLoading(true);
-        try {
-            const payload = { ...form, price: Number(form.price) };
-            if (editing) {
-                await updateAppointment(editing.id, payload);
-                showNotification('Запись успешно обновлена', 'success');
-            } else {
-                await createAppointment(payload);
-                showNotification('Запись успешно добавлена', 'success');
+    // Загрузка справочников (можно вынести в отдельный хук, но для простоты оставим здесь)
+    React.useEffect(() => {
+        const loadDicts = async () => {
+            try {
+                const [clientsData, carsData, servicesData, employeesData, baysData] = await Promise.all([
+                    getClients(), getCars(), getServices(), getEmployees(), getWashBays()
+                ]);
+                setClients(Array.isArray(clientsData) ? clientsData : clientsData?.data || []);
+                setCars(Array.isArray(carsData) ? carsData : carsData?.data || []);
+                setServices(Array.isArray(servicesData) ? servicesData : servicesData?.data || []);
+                setEmployees(Array.isArray(employeesData) ? employeesData : employeesData?.data || []);
+                setBays(Array.isArray(baysData) ? baysData : baysData?.data || []);
+            } catch (e) {
+                console.error('LOAD DICTS ERROR:', e);
             }
-            setShow(false);
-            setEditing(null);
-            setForm({
-                dateTime: '',
-                clientId: '',
-                carId: '',
-                serviceId: '',
-                employeeId: '',
-                status: 'pending',
-                price: '',
-                comment: '',
-                washBayId: ''
-            });
-            await load();
-        } catch (e) {
-            console.error("SAVE ERROR:", e);
-            showNotification('Ошибка при сохранении записи', 'danger');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const deleteAppointmentRecord = async (id) => {
-        if (!window.confirm('Удалить запись?')) return;
-        setLoading(true);
-        try {
-            await deleteAppointment(id);
-            showNotification('Запись удалена', 'success');
-            await load();
-        } catch (e) {
-            console.error("DELETE ERROR:", e);
-            showNotification('Ошибка при удалении записи', 'danger');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const openEdit = (item) => {
-        setEditing(item);
-        setForm({
-            dateTime: item.dateTime || '',
-            clientId: item.clientId || '',
-            carId: item.carId || '',
-            serviceId: item.serviceId || '',
-            employeeId: item.employeeId || '',
-            status: item.status || 'pending',
-            price: item.price || '',
-            comment: item.comment || '',
-            washBayId: item.washBayId || ''
-        });
-        setShow(true);
-    };
+        };
+        loadDicts();
+    }, []);
 
     // ----- Функции получения имён по ID -----
     const getClientName = (id) => clients.find(c => c.id === id)?.name || id || '—';
@@ -182,33 +123,12 @@ const Appointments = () => {
         { key: 'price', label: 'Цена', filterType: 'number', format: (val) => `${val || 0} ₽` }
     ];
 
-    const addButton = (
-        <Button onClick={() => {
-            setEditing(null);
-            setForm({
-                dateTime: '', clientId: '', carId: '', serviceId: '', employeeId: '',
-                status: 'pending', price: '', comment: '', washBayId: ''
-            });
-            setShow(true);
-        }}>
-            + Запись
-        </Button>
-    );
+    const addButton = <Button onClick={openAdd}>+ Запись</Button>;
 
-    // ----- Рендер -----
     return (
         <>
-            {/* Уведомления */}
-            {notification.show && (
-                <div style={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 9999, minWidth: '250px' }}>
-                    <Alert variant={notification.variant} onClose={() => setNotification({ ...notification, show: false })} dismissible>
-                        {notification.message}
-                    </Alert>
-                </div>
-            )}
-
             <TableEditor tableName="appointments" allColumns={allColumns}>
-                {({ visibleColumns, isEditing }) => (
+                {({ visibleColumns }) => (
                     <>
                         {loading ? (
                             <div className="text-center my-5">
@@ -218,19 +138,18 @@ const Appointments = () => {
                         ) : (
                             <DataTable
                                 data={items}
-                                columns={visibleColumns} // уже обработанные с крестиками
+                                columns={visibleColumns}
                                 idField="id"
                                 itemsPerPage={12}
                                 addButton={addButton}
                                 onEdit={openEdit}
-                                onDelete={deleteAppointmentRecord}
+                                onDelete={del}
                             />
                         )}
                     </>
                 )}
             </TableEditor>
 
-            {/* Модальное окно для создания/редактирования записи */}
             <AppointmentModal
                 show={show}
                 onHide={() => setShow(false)}
@@ -242,7 +161,7 @@ const Appointments = () => {
                 services={services}
                 employees={employees}
                 bays={bays}
-                onSave={saveAppointment}
+                onSave={save}
                 loading={loading}
             />
         </>

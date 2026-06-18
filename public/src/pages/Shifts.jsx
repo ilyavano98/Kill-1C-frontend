@@ -1,150 +1,133 @@
-import React, { useState, useEffect } from 'react';
-import {Button, Modal, Form, Spinner} from 'react-bootstrap';
+import React from 'react';
+import { Button, Spinner } from 'react-bootstrap';
 import { getShifts, getEmployees, createShift, updateShift, deleteShift } from '../api/api';
-import {DataTable} from "./components/DataTable";
+import { DataTable } from "./components/DataTable";
+import TableEditor from '../components/TableEditor';
+import EntityModal from './components/EntityModal';
+import { useCrud } from '../hooks/useCrud';
 
 const Shifts = () => {
-    const [items, setItems] = useState([]);
-    const [employees, setEmployees] = useState([]);
-    const [show, setShow] = useState(false);
-    const [editing, setEditing] = useState(null);
-    const [form, setForm] = useState({ date: '', employeeId: '', start: '', end: '', carsCount: '' });
-
-    // Лоадер и уведомления
-    const [loading, setLoading] = useState(true);
-    const [notification, setNotification] = useState({ show: false, message: '', variant: 'success' });
-
-    useEffect(() => { load(); }, []);
-
-    const load = async () => {
-        setLoading(true);
-        try {
-            const shiftsData = await getShifts();
-            const employeesData = await getEmployees();
-            console.log("shiftsData:", shiftsData);
-            setItems(Array.isArray(shiftsData) ? shiftsData : shiftsData?.data || []);
-            setEmployees(Array.isArray(employeesData) ? employeesData : employeesData?.data || []);
-        } catch (e) {
-            console.error("LOAD ERROR:", e);
-        } finally {
-            setLoading(false);
-        }
+    // --- Данные для формы ---
+    const initialForm = {
+        date: '',
+        employeeId: '',
+        start: '',
+        end: '',
+        carsCount: '',
     };
 
-    const save = async () => {
-        try {
-            const payload = { ...form, carsCount: Number(form.carsCount) };
-            if (editing) {
-                await updateShift(editing.id, payload);
-            } else {
-                await createShift(payload);
-            }
-            setShow(false);
-            setEditing(null);
-            setForm({ date: '', employeeId: '', start: '', end: '', carsCount: '' });
-            await load();
-        } catch (e) {
-            console.error("SAVE ERROR:", e);
-        }
-    };
-
-    const del = async (id) => {
-        if (window.confirm('Удалить?')) {
-            await deleteShift(id);
-            await load();
-        }
-    };
-
-    const openEdit = (item) => {
-        setEditing(item);
-        setForm({
+    // --- Используем хук useCrud ---
+    const {
+        items,
+        loading,
+        form,
+        setForm,
+        show,
+        setShow,
+        editing,
+        save,
+        del,
+        openEdit,
+        openAdd,
+    } = useCrud({
+        getItems: getShifts,
+        createItem: createShift,
+        updateItem: updateShift,
+        deleteItem: deleteShift,
+        initialForm,
+        entityName: 'Смена',
+        transformPayload: (data) => ({ ...data, carsCount: Number(data.carsCount) }),
+        transformItemForEdit: (item) => ({
             date: item.date || '',
             employeeId: item.employeeId || '',
             start: item.start || '',
             end: item.end || '',
-            carsCount: item.carsCount || ''
-        });
-        setShow(true);
-    };
+            carsCount: item.carsCount || '',
+        }),
+    });
 
-    const getEmployeeName = (id) => employees.find(c => c.id === id)?.name || id || '—';
+    // --- Загрузка сотрудников (для select) ---
+    const [employees, setEmployees] = React.useState([]);
+    React.useEffect(() => {
+        const loadEmployees = async () => {
+            try {
+                const data = await getEmployees();
+                setEmployees(Array.isArray(data) ? data : data?.data || []);
+            } catch (e) {
+                console.error('LOAD EMPLOYEES ERROR:', e);
+            }
+        };
+        loadEmployees();
+    }, []);
 
-    // Конфигурация колонок для DataTable
-    const columns = [
-        {
-            key: 'date',
-            label: 'Дата',
-            filterType: 'date'
-        },
+    // ----- Функция получения имени сотрудника -----
+    const getEmployeeName = (id) => employees.find(e => e.id === id)?.name || id || '—';
+
+    // ----- Базовое описание всех возможных колонок -----
+    const allColumns = [
+        { key: 'date', label: 'Дата', filterType: 'date' },
         {
             key: 'employee',
             label: 'Сотрудник',
             filterType: 'text',
-            getDisplayValue: (item) => getEmployeeName(item.employeeId)
+            getDisplayValue: (item) => getEmployeeName(item.employeeId),
         },
-        {
-            key: 'start',
-            label: 'Начало',
-            filterType: 'text'
-        },
-        {
-            key: 'end',
-            label: 'Конец',
-            filterType: 'text'
-        },
-        {
-            key: 'carsCount',
-            label: 'Количество автомобилей',
-            filterType: 'number'
-        }
+        { key: 'start', label: 'Начало', filterType: 'text' },
+        { key: 'end', label: 'Конец', filterType: 'text' },
+        { key: 'carsCount', label: 'Количество автомобилей', filterType: 'number' },
     ];
 
-    const addButton = (
-        <Button onClick={() => {
-            setEditing(null);
-            setForm({ date: '', employeeId: '', start: '', end: '', carsCount: '' });
-            setShow(true);
-        }}>
-            + Смена
-        </Button>
-    );
+    // ----- Поля для модального окна -----
+    const fields = [
+        { key: 'date', fieldType: 'date', placeholder: 'Дата' },
+        {
+            key: 'employeeId',
+            fieldType: 'select',
+            placeholder: 'Выберите сотрудника',
+            options: employees.map(e => ({ value: e.id, label: e.name })),
+        },
+        { key: 'start', fieldType: 'time', placeholder: 'Начало' },
+        { key: 'end', fieldType: 'time', placeholder: 'Конец' },
+        { key: 'carsCount', fieldType: 'number', placeholder: 'Авто обработано' },
+    ];
+
+    const addButton = <Button onClick={openAdd}>+ Смена</Button>;
 
     return (
         <>
-            {loading ? (
-                <div className="text-center my-5">
-                    <Spinner animation="border" variant="primary" />
-                    <p className="mt-2">Загрузка данных...</p>
-                </div>
-            ) : (
-                <DataTable
-                    data={items}
-                    columns={columns}
-                    idField="id"
-                    itemsPerPage={12}
-                    addButton={addButton}
-                    onEdit={openEdit}
-                    onDelete={del}
-                />
-            )}
+            <TableEditor tableName="shifts" allColumns={allColumns}>
+                {({ visibleColumns }) => (
+                    <>
+                        {loading ? (
+                            <div className="text-center my-5">
+                                <Spinner animation="border" variant="primary" />
+                                <p className="mt-2">Загрузка данных...</p>
+                            </div>
+                        ) : (
+                            <DataTable
+                                data={items}
+                                columns={visibleColumns}
+                                idField="id"
+                                itemsPerPage={12}
+                                addButton={addButton}
+                                onEdit={openEdit}
+                                onDelete={del}
+                            />
+                        )}
+                    </>
+                )}
+            </TableEditor>
 
-            <Modal show={show} onHide={() => setShow(false)}>
-                <Modal.Header closeButton><Modal.Title>{editing ? 'Редактирование' : 'Новая смена'}</Modal.Title></Modal.Header>
-                <Modal.Body>
-                    <Form.Control className="mb-2" type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} />
-                    <Form.Select className="mb-2" value={form.employeeId} onChange={e => setForm({ ...form, employeeId: e.target.value })}>
-                        <option value="">Выберите сотрудника</option>
-                        {employees.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
-                    </Form.Select>
-                    <Form.Control className="mb-2" type="time" value={form.start} onChange={e => setForm({ ...form, start: e.target.value })} />
-                    <Form.Control className="mb-2" type="time" value={form.end} onChange={e => setForm({ ...form, end: e.target.value })} />
-                    <Form.Control className="mb-2" type="number" placeholder="Авто обработано" value={form.carsCount} onChange={e => setForm({ ...form, carsCount: e.target.value })} />
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShow(false)}>Отмена</Button>
-                    <Button onClick={save}>Сохранить</Button>
-                </Modal.Footer>
-            </Modal>
+            <EntityModal
+                show={show}
+                onHide={() => setShow(false)}
+                title={editing ? 'Редактирование смены' : 'Новая смена'}
+                fields={fields}
+                form={form}
+                setForm={setForm}
+                onSave={save}
+                loading={loading}
+            />
         </>
     );
 };

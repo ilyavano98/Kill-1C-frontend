@@ -1,134 +1,102 @@
-import React, { useState, useEffect } from 'react';
-import {Button, Modal, Form, Spinner} from 'react-bootstrap';
+import React from 'react';
+import { Button, Spinner } from 'react-bootstrap';
 import { getServices, createService, updateService, deleteService } from '../api/api';
-import {DataTable} from "./components/DataTable";
+import { DataTable } from "./components/DataTable";
+import TableEditor from '../components/TableEditor';
+import EntityModal from './components/EntityModal';
+import { useCrud } from '../hooks/useCrud';
 
 const Services = () => {
-    const [items, setItems] = useState([]);
-    const [show, setShow] = useState(false);
-    const [editing, setEditing] = useState(null);
-    const [form, setForm] = useState({ name: '', type: 'мойка', price: '' });
-
-    // Лоадер и уведомления
-    const [loading, setLoading] = useState(true);
-    const [notification, setNotification] = useState({ show: false, message: '', variant: 'success' });
-
-    useEffect(() => { load(); }, []);
-
-    const load = async () => {
-        setLoading(true);
-        try {
-            const data = await getServices();
-            console.log("servicesData:", data);
-            setItems(Array.isArray(data) ? data : data?.data || []);
-        } catch (e) {
-            console.error("LOAD ERROR:", e);
-        } finally {
-            setLoading(false);
-        }
+    const initialForm = {
+        name: '',
+        type: 'мойка',
+        price: '',
     };
 
-    const save = async () => {
-        try {
-            const payload = { ...form, price: Number(form.price) };
-            if (editing) {
-                await updateService(editing.id, payload);
-            } else {
-                await createService(payload);
-            }
-            setShow(false);
-            setEditing(null);
-            setForm({ name: '', type: 'мойка', price: '' });
-            await load();
-        } catch (e) {
-            console.error("SAVE ERROR:", e);
-        }
-    };
-
-    const del = async (id) => {
-        if (window.confirm('Удалить?')) {
-            await deleteService(id);
-            await load();
-        }
-    };
-
-    const openEdit = (item) => {
-        setEditing(item);
-        setForm({
+    const {
+        items,
+        loading,
+        form,
+        setForm,
+        show,
+        setShow,
+        editing,
+        save,
+        del,
+        openEdit,
+        openAdd,
+    } = useCrud({
+        getItems: getServices,
+        createItem: createService,
+        updateItem: updateService,
+        deleteItem: deleteService,
+        initialForm,
+        entityName: 'Услуга',
+        transformPayload: (data) => ({ ...data, price: Number(data.price) }),
+        transformItemForEdit: (item) => ({
             name: item.name || '',
             type: item.type || 'мойка',
-            price: item.price || ''
-        });
-        setShow(true);
-    };
+            price: item.price || '',
+        }),
+    });
 
-    const getWashValue = (id) => carwashes.find(c => c.id === id)?.name || id || '—';
-
-    // Конфигурация колонок для DataTable
-    const columns = [
-        {
-            key: 'name',
-            label: 'Название',
-            filterType: 'text'
-        },
-        {
-            key: 'type',
-            label: 'Тип',
-            filterType: 'text',
-            format: (val) => `${val === 'мойка' ? 'Мойка' : 'Доп. услуга'}`
-        },
-        {
-            key: 'price',
-            label: 'Цена',
-            filterType: 'number',
-            format: (val) => `${val || 0} ₽`
-        }
+    const allColumns = [
+        { key: 'name', label: 'Название', filterType: 'text' },
+        { key: 'type', label: 'Тип', filterType: 'text', format: (val) => (val === 'мойка' ? 'Мойка' : 'Доп. услуга') },
+        { key: 'price', label: 'Цена', filterType: 'number', format: (val) => `${val || 0} ₽` },
     ];
 
-    const addButton = (
-        <Button onClick={() => {
-            setEditing(null);
-            setForm({ name: '', type: 'мойка', price: '' });
-            setShow(true);
-        }}>
-            + Услуга
-        </Button>
-    );
+    const fields = [
+        { key: 'name', placeholder: 'Название' },
+        {
+            key: 'type',
+            fieldType: 'select',
+            placeholder: 'Тип услуги',
+            options: [
+                { value: 'мойка', label: 'Мойка' },
+                { value: 'доп', label: 'Доп. услуга' },
+            ],
+        },
+        { key: 'price', fieldType: 'number', placeholder: 'Цена' },
+    ];
+
+    const addButton = <Button onClick={openAdd}>+ Услуга</Button>;
 
     return (
         <>
-            {loading ? (
-                <div className="text-center my-5">
-                    <Spinner animation="border" variant="primary" />
-                    <p className="mt-2">Загрузка данных...</p>
-                </div>
-            ) : (
-                <DataTable
-                    data={items}
-                    columns={columns}
-                    idField="id"
-                    itemsPerPage={12}
-                    addButton={addButton}
-                    onEdit={openEdit}
-                    onDelete={del}
-                />
-            )}
+            <TableEditor tableName="services" allColumns={allColumns}>
+                {({ visibleColumns }) => (
+                    <>
+                        {loading ? (
+                            <div className="text-center my-5">
+                                <Spinner animation="border" variant="primary" />
+                                <p className="mt-2">Загрузка данных...</p>
+                            </div>
+                        ) : (
+                            <DataTable
+                                data={items}
+                                columns={visibleColumns}
+                                idField="id"
+                                itemsPerPage={12}
+                                addButton={addButton}
+                                onEdit={openEdit}
+                                onDelete={del}
+                            />
+                        )}
+                    </>
+                )}
+            </TableEditor>
 
-            <Modal show={show} onHide={() => setShow(false)}>
-                <Modal.Header closeButton><Modal.Title>{editing ? 'Редактирование' : 'Новая услуга'}</Modal.Title></Modal.Header>
-                <Modal.Body>
-                    <Form.Control className="mb-2" placeholder="Название" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
-                    <Form.Select className="mb-2" value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}>
-                        <option value="мойка">Мойка</option>
-                        <option value="доп">Доп. услуга</option>
-                    </Form.Select>
-                    <Form.Control className="mb-2" type="number" placeholder="Цена" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} />
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShow(false)}>Отмена</Button>
-                    <Button onClick={save}>Сохранить</Button>
-                </Modal.Footer>
-            </Modal>
+            <EntityModal
+                show={show}
+                onHide={() => setShow(false)}
+                title={editing ? 'Редактирование услуги' : 'Новая услуга'}
+                fields={fields}
+                form={form}
+                setForm={setForm}
+                onSave={save}
+                loading={loading}
+            />
         </>
     );
 };
