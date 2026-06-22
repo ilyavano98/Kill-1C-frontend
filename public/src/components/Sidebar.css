@@ -1,0 +1,190 @@
+/* Базовые стили для обоих режимов */
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    background: var(--sidebar-bg, #f8f9fa);
+    color: var(--sidebar-text, #212529);
+    overflow-y: auto;
+    transition: width 0.3s ease, left 0.3s ease;
+    z-index: 999;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    flex-shrink: 0;
+}
+
+/* === ДЕСКТОПНЫЙ РЕЖИМ === */
+.sidebar.desktop {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    width: 60px; /* свёрнуто */
+    overflow-x: hidden;
+}
+
+.sidebar.desktop.expanded {
+    width: 260px;
+}
+
+/* Скрываем текст на десктопе, если свёрнуто */
+.sidebar.desktop .nav-label,
+.sidebar.desktop .brand-name,
+.sidebar.desktop .btn-label {
+    opacity: 0;
+    white-space: nowrap;
+    transition: opacity 0.2s ease;
+}
+
+.sidebar.desktop.expanded .nav-label,
+.sidebar.desktop.expanded .brand-name,
+.sidebar.desktop.expanded .btn-label {
+    opacity: 1;
+}
+
+/* Иконки всегда видны */
+.sidebar.desktop .nav-link i {
+    font-size: 1.4rem;
+    min-width: 24px;
+    text-align: center;
+}
+
+.sidebar.desktop .sidebar-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem 0.75rem;
+    gap: 0.5rem;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    justify-content: flex-start;
+}
+
+.sidebar.desktop .logo {
+    font-size: 1.8rem;
+}
+
+.sidebar.desktop .create-btn {
+    width: calc(100% - 1rem);
+    margin: 0.5rem auto;
+    padding: 0.5rem;
+    justify-content: center;
+}
+
+/* === МОБИЛЬНЫЙ РЕЖИМ === */
+.sidebar.mobile {
+    position: fixed;
+    left: -280px;
+    top: 0;
+    width: 280px;
+    height: 100%;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+}
+
+.sidebar.mobile.expanded {
+    left: 0;
+}
+
+.sidebar.mobile .sidebar-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    gap: 0.75rem;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.sidebar.mobile .close-btn {
+    display: block;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--sidebar-text, #212529);
+    cursor: pointer;
+    margin-left: auto;
+}
+
+.sidebar.mobile .nav-label,
+.sidebar.mobile .brand-name,
+.sidebar.mobile .btn-label {
+    opacity: 1;
+    display: inline-block;
+}
+
+/* === ОБЩИЕ СТИЛИ ДЛЯ ССЫЛОК === */
+.sidebar-nav .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.7rem 1.2rem;
+    gap: 0.75rem;
+    color: var(--sidebar-text, #212529);
+    text-decoration: none;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.sidebar-nav .nav-link:hover {
+    background: var(--sidebar-hover-bg, #dee2e6);
+}
+
+.sidebar-nav .nav-link.active {
+    background: var(--sidebar-active-bg, #e9ecef);
+    font-weight: 600;
+}
+
+.sidebar-nav .nav-link i {
+    font-size: 1.2rem;
+    min-width: 24px;
+    text-align: center;
+}
+
+.create-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.7rem;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    justify-content: center;
+}
+
+.create-btn:hover {
+    background: #1d4ed8;
+}
+
+/* === ОВЕРЛЕЙ (только мобилки) === */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 998;
+}
+
+@media (max-width: 768px) {
+    .sidebar-overlay {
+        display: block;
+    }
+}
+
+/* === ДОПОЛНИТЕЛЬНО: скрываем кнопку закрытия на десктопе === */
+.sidebar.desktop .close-btn {
+    display: none !important;
+}
+
+/* === ПЕРЕМЕННЫЕ ДЛЯ ТЕМЫ === */
+:root {
+    --sidebar-bg: #f8f9fa;
+    --sidebar-text: #212529;
+    --sidebar-active-bg: #e9ecef;
+    --sidebar-hover-bg: #dee2e6;
+}
+
+body.dark {
+    --sidebar-bg: #1a1f2e;
+    --sidebar-text: #e9ecef;
+    --sidebar-active-bg: #2c3a4f;
+    --sidebar-hover-bg: #2a3346;
+}
