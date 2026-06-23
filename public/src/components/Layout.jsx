@@ -290,9 +290,9 @@ const Layout = () => {
                 <button className="btn btn-sm position-relative">
                   <span role="img" aria-label="уведомления">🔔</span>
                 </button>
-                <div className="user-avatar d-none d-md-flex">
-                  <img src="https://i.pravatar.cc/40" alt="avatar" />
-                  <div className="muted">{user?.name || 'Администратор'}</div>
+                <div className="user-avatar">
+                  <img src="https://i.pravatar.cc/36" alt="avatar" />
+                  <div className="muted d-none d-sm-inline">{user?.name || 'Администратор'}</div>
                 </div>
                 <button className="btn btn-sm btn-outline-danger" onClick={handleLogout}>
                   <i className="bi bi-box-arrow-right"></i>

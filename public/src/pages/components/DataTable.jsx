@@ -1,19 +1,73 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Form } from 'react-bootstrap';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    useSortable,
+    horizontalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
+
+const SortableTh = ({ id, children, ...props }) => {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+        cursor: 'grab',
+    };
+
+    return (
+        <th ref={setNodeRef} style={style} {...attributes} {...listeners} {...props}>
+            {children}
+        </th>
+    );
+};
 
 export const DataTable = ({
-                       data = [],
-                       columns = [],
-                       idField = 'id',
-                       itemsPerPage = 12,
-                       addButton = null,
-                       onEdit = null,
-                       onDelete = null,
-                       customFilters = {}
-                   }) => {
+                              data = [],
+                              columns = [],
+                              idField = 'id',
+                              itemsPerPage = 12,
+                              addButton = null,
+                              onEdit = null,
+                              onDelete = null,
+                              customFilters = {},
+                              onReorder = null,
+                              isMobile = false,
+                          }) => {
     const [filterColumn, setFilterColumn] = useState('');
     const [filterValues, setFilterValues] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
+    const isMobileDevice = useMediaQuery('(max-width: 768px)');
+    const effectiveIsMobile = isMobile !== undefined ? isMobile : isMobileDevice;
+
+    const effectiveItemsPerPage = effectiveIsMobile ? 6 : itemsPerPage;
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
 
     const getDisplayValue = (item, col) => {
         if (col.getDisplayValue) return col.getDisplayValue(item);
@@ -53,13 +107,13 @@ export const DataTable = ({
         return displayValue.includes(search);
     });
 
-    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentItems = filteredData.slice(startIndex, startIndex + itemsPerPage);
+    const totalPages = Math.ceil(filteredData.length / effectiveItemsPerPage);
+    const startIndex = (currentPage - 1) * effectiveItemsPerPage;
+    const currentItems = filteredData.slice(startIndex, startIndex + effectiveItemsPerPage);
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [filterColumn, filterValues,/* customFilters*/]);
+    }, [filterColumn, filterValues/*, customFilters*/]);
 
     const prevDataLength = React.useRef(data.length);
     useEffect(() => {
@@ -123,6 +177,22 @@ export const DataTable = ({
 
     const filterableColumns = columns.filter(col => col.filterType);
 
+    const columnKeys = columns.map(col => col.key);
+
+    const handleDragEnd = (event) => {
+        if (!onReorder) return;
+        const { active, over } = event;
+        if (active.id !== over.id) {
+            const oldIndex = columnKeys.indexOf(active.id);
+            const newIndex = columnKeys.indexOf(over.id);
+            const newOrder = arrayMove(columnKeys, oldIndex, newIndex);
+            onReorder(newOrder);
+        }
+    };
+
+    // Включаем DnD только на ПК (не мобилка) и если onReorder передан
+    const shouldEnableDnd = onReorder && !effectiveIsMobile;
+
     return (
         <>
             <div className="d-flex flex-wrap align-items-end gap-3 mb-3">
@@ -148,7 +218,28 @@ export const DataTable = ({
             <Table striped bordered hover responsive>
                 <thead>
                 <tr>
-                    {columns.map(col => <th key={col.key}>{col.header || col.label}</th>)}
+                    {shouldEnableDnd ? (
+                        <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={handleDragEnd}
+                        >
+                            <SortableContext
+                                items={columnKeys}
+                                strategy={horizontalListSortingStrategy}
+                            >
+                                {columns.map(col => (
+                                    <SortableTh key={col.key} id={col.key}>
+                                        {col.header || col.label}
+                                    </SortableTh>
+                                ))}
+                            </SortableContext>
+                        </DndContext>
+                    ) : (
+                        columns.map(col => (
+                            <th key={col.key}>{col.header || col.label}</th>
+                        ))
+                    )}
                     {(onEdit || onDelete) && <th></th>}
                 </tr>
                 </thead>
@@ -170,13 +261,12 @@ export const DataTable = ({
                 </tbody>
             </Table>
 
-            {/* === УЛУЧШЕННАЯ ПАГИНАЦИЯ === */}
             {filteredData.length > 0 && (
                 <div className="pagination-wrapper">
                     <div className="pagination-info">
                         {filteredData.length > 0 && (
                             <span className="pagination-range">
-                {startIndex + 1}–{Math.min(startIndex + itemsPerPage, filteredData.length)} из {filteredData.length}
+                {startIndex + 1}–{Math.min(startIndex + effectiveItemsPerPage, filteredData.length)} из {filteredData.length}
               </span>
                         )}
                     </div>
@@ -218,3 +308,5 @@ export const DataTable = ({
         </>
     );
 };
+
+export default DataTable;

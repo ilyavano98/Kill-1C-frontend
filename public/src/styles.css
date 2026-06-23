@@ -689,9 +689,6 @@ tbody tr:hover {
   .search-wrapper {
     display: none !important;
   }
-  .user-avatar {
-    display: none !important;
-  }
   .topbar {
     padding: 0.4rem 0.75rem;
     min-height: 48px;
@@ -797,4 +794,84 @@ body.dark {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   display: inline-block;
+}
+@media (max-width: 768px) {
+  .table,
+  .table th,
+  .table td {
+    font-size: 0.7rem !important;  /* уменьшаем шрифт */
+  }
+
+  .table th,
+  .table td {
+    padding: 0.3rem 0.4rem !important;  /* уменьшаем отступы внутри ячеек */
+  }
+
+  /* Дополнительно: кнопки в таблице тоже делаем компактнее */
+  .table .btn-sm {
+    padding: 0.1rem 0.3rem !important;
+    font-size: 0.7rem !important;
+  }
+
+  /* Если используется DataTable с фильтрами, можно уменьшить поля ввода */
+  .table + .pagination-wrapper .pagination-btn,
+  .table + .pagination-wrapper .pagination-input {
+    font-size: 0.7rem !important;
+  }
+}
+
+/* ===== DND-ЧИПСЫ ДЛЯ ПЕРЕТАСКИВАНИЯ КОЛОНОК ===== */
+.dnd-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.6rem;
+  background: var(--card, #f0f0f0);
+  border: 1px solid var(--glass-border, #ccc);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  user-select: none;
+  transition: box-shadow 0.2s;
+}
+
+.dnd-chip:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dnd-chip button {
+  background: none;
+  border: none;
+  color: var(--text-muted, #666);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.dnd-chip button:hover {
+  color: var(--danger, #dc3545);
+}
+.dnd-chip {
+  touch-action: none !important;
+}
+.dnd-chip {
+  touch-action: none !important;
+  user-select: none;
+  transition: box-shadow 0.2s;
+}
+
+.dnd-chip:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dnd-chip button {
+  background: none;
+  border: none;
+  color: var(--text-muted, #666);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.dnd-chip button:hover {
+  color: var(--danger, #dc3545);
 }

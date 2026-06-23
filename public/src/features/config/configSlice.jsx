@@ -16,7 +16,7 @@ export const DEFAULT_CONFIG = {
                 visibleColumns: ['name', 'address', 'isActive'],
             },
             clients: {
-                visibleColumns: ['id', 'name', 'phone', 'email'],
+                visibleColumns: ['name', 'phone', 'email', 'preferences'],
             },
             dashBoard: {
                 visibleColumns: [],
@@ -113,10 +113,10 @@ const configSlice = createSlice({
             state.isEditing = true;
             state.draftConfig = JSON.parse(JSON.stringify(state.config)); // глубокое копирование
         },
-        // Отменить редактирование: сбросить draft и выйти
+        // в configSlice.js
         cancelEditing(state) {
             state.isEditing = false;
-            state.draftConfig = JSON.parse(JSON.stringify(state.config));
+            state.draftConfig = JSON.parse(JSON.stringify(state.config)); // глубокая копия
             state.error = null;
         },
         // Обновить черновик (любое поле)

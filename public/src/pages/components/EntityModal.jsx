@@ -56,6 +56,8 @@ const EntityModal = ({
                 );
             case 'textarea':
                 return <Form.Control as="textarea" {...commonProps} placeholder={field.placeholder} />;
+            case 'datetime':
+                return <Form.Control className="mb-2" type="datetime-local" {...commonProps} placeholder={field.placeholder} />;
             case 'checkbox':
                 return <Form.Check type="checkbox" label={field.label} checked={!!value} onChange={(e) => handleChange(e, field)} disabled={loading} />;
             default:

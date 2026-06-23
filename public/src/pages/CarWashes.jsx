@@ -5,8 +5,12 @@ import { DataTable } from "./components/DataTable";
 import TableEditor from '../components/TableEditor';
 import EntityModal from './components/EntityModal';
 import { useCrud } from '../hooks/useCrud';
+import {useMediaQuery} from "../hooks/useMediaQuery";
 
 const CarWashes = () => {
+    // --- Определяем мобильное устройство ---
+    const isMobile = useMediaQuery('(max-width: 768px)');
+
     const initialForm = {
         name: '',
         address: '',
@@ -61,8 +65,8 @@ const CarWashes = () => {
 
     return (
         <>
-            <TableEditor tableName="carwashes" allColumns={allColumns}>
-                {({ visibleColumns }) => (
+            <TableEditor tableName="carwashes" allColumns={allColumns} isMobile={isMobile}>
+                {({ visibleColumns, isEditing, onReorder }) => (
                     <>
                         {loading ? (
                             <div className="text-center my-5">
@@ -78,6 +82,8 @@ const CarWashes = () => {
                                 addButton={addButton}
                                 onEdit={openEdit}
                                 onDelete={del}
+                                onReorder={onReorder}
+                                isMobile={isMobile}
                             />
                         )}
                     </>

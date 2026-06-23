@@ -5,8 +5,13 @@ import { DataTable } from "./components/DataTable";
 import TableEditor from '../components/TableEditor';
 import EntityModal from './components/EntityModal';
 import { useCrud } from '../hooks/useCrud';
+import {useMediaQuery} from "../hooks/useMediaQuery";
+import {formatDateTime, toDateTimeLocal} from "../functions/Functions";
 
 const Shifts = () => {
+    // --- Определяем мобильное устройство ---
+    const isMobile = useMediaQuery('(max-width: 768px)');
+
     // --- Данные для формы ---
     const initialForm = {
         date: '',
@@ -40,9 +45,9 @@ const Shifts = () => {
         transformItemForEdit: (item) => ({
             date: item.date || '',
             employeeId: item.employeeId || '',
-            start: item.start || '',
-            end: item.end || '',
             carsCount: item.carsCount || '',
+            start: toDateTimeLocal(item.start),
+            end: toDateTimeLocal(item.end),
         }),
     });
 
@@ -65,29 +70,27 @@ const Shifts = () => {
 
     // ----- Базовое описание всех возможных колонок -----
     const allColumns = [
-        { key: 'date', label: 'Дата', filterType: 'date' },
         {
             key: 'employee',
             label: 'Сотрудник',
             filterType: 'text',
             getDisplayValue: (item) => getEmployeeName(item.employeeId),
         },
-        { key: 'start', label: 'Начало', filterType: 'text' },
-        { key: 'end', label: 'Конец', filterType: 'text' },
+        { key: 'start', label: 'Начало', filterType: 'date', format: formatDateTime },
+        { key: 'end', label: 'Конец', filterType: 'date', format: formatDateTime },
         { key: 'carsCount', label: 'Количество автомобилей', filterType: 'number' },
     ];
 
     // ----- Поля для модального окна -----
     const fields = [
-        { key: 'date', fieldType: 'date', placeholder: 'Дата' },
         {
             key: 'employeeId',
             fieldType: 'select',
             placeholder: 'Выберите сотрудника',
             options: employees.map(e => ({ value: e.id, label: e.name })),
         },
-        { key: 'start', fieldType: 'time', placeholder: 'Начало' },
-        { key: 'end', fieldType: 'time', placeholder: 'Конец' },
+        { key: 'start', fieldType: 'datetime', placeholder: 'Начало' },
+        { key: 'end', fieldType: 'datetime', placeholder: 'Конец' },
         { key: 'carsCount', fieldType: 'number', placeholder: 'Авто обработано' },
     ];
 
@@ -95,8 +98,8 @@ const Shifts = () => {
 
     return (
         <>
-            <TableEditor tableName="shifts" allColumns={allColumns}>
-                {({ visibleColumns }) => (
+            <TableEditor tableName="shifts" allColumns={allColumns} isMobile={isMobile}>
+                {({ visibleColumns, isEditing, onReorder }) => (
                     <>
                         {loading ? (
                             <div className="text-center my-5">
@@ -112,6 +115,8 @@ const Shifts = () => {
                                 addButton={addButton}
                                 onEdit={openEdit}
                                 onDelete={del}
+                                onReorder={onReorder}
+                                isMobile={isMobile}
                             />
                         )}
                     </>
