@@ -5,8 +5,12 @@ import { DataTable } from "./components/DataTable";
 import TableEditor from '../components/TableEditor';
 import EntityModal from './components/EntityModal';
 import { useCrud } from '../hooks/useCrud';
+import {useMediaQuery} from "../hooks/useMediaQuery";
 
 const Services = () => {
+    // --- Определяем мобильное устройство ---
+    const isMobile = useMediaQuery('(max-width: 768px)');
+
     const initialForm = {
         name: '',
         type: 'мойка',
@@ -64,8 +68,8 @@ const Services = () => {
 
     return (
         <>
-            <TableEditor tableName="services" allColumns={allColumns}>
-                {({ visibleColumns }) => (
+            <TableEditor tableName="services" allColumns={allColumns} isMobile={isMobile}>
+                {({ visibleColumns, isEditing, onReorder }) => (
                     <>
                         {loading ? (
                             <div className="text-center my-5">
@@ -81,6 +85,8 @@ const Services = () => {
                                 addButton={addButton}
                                 onEdit={openEdit}
                                 onDelete={del}
+                                onReorder={onReorder}
+                                isMobile={isMobile}
                             />
                         )}
                     </>

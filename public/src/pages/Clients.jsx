@@ -5,8 +5,12 @@ import { DataTable } from "./components/DataTable";
 import TableEditor from '../components/TableEditor';
 import EntityModal from './components/EntityModal';
 import { useCrud } from '../hooks/useCrud';
+import {useMediaQuery} from "../hooks/useMediaQuery";
 
 const Clients = () => {
+    // --- Определяем мобильное устройство ---
+    const isMobile = useMediaQuery('(max-width: 768px)');
+
     const initialForm = {
         name: '',
         phone: '',
@@ -32,7 +36,7 @@ const Clients = () => {
         updateItem: updateClient,
         deleteItem: deleteClient,
         initialForm,
-        entityName: 'Клиент',
+        entityName: 'Запись о клиенте',
         transformItemForEdit: (item) => ({
             name: item.name || '',
             phone: item.phone || '',
@@ -45,6 +49,7 @@ const Clients = () => {
         { key: 'name', label: 'ФИО', filterType: 'text' },
         { key: 'phone', label: 'Телефон', filterType: 'text' },
         { key: 'email', label: 'Электронная почта', filterType: 'text' },
+        { key: 'preferences', label: 'Предпочтения', filterType: 'text'},
     ];
 
     const fields = [
@@ -58,8 +63,8 @@ const Clients = () => {
 
     return (
         <>
-            <TableEditor tableName="clients" allColumns={allColumns}>
-                {({ visibleColumns }) => (
+            <TableEditor tableName="clients" allColumns={allColumns} isMobile={isMobile}>
+                {({ visibleColumns, isEditing, onReorder }) => (
                     <>
                         {loading ? (
                             <div className="text-center my-5">
@@ -75,6 +80,8 @@ const Clients = () => {
                                 addButton={addButton}
                                 onEdit={openEdit}
                                 onDelete={del}
+                                onReorder={onReorder}
+                                isMobile={isMobile}
                             />
                         )}
                     </>

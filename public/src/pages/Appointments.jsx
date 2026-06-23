@@ -1,11 +1,12 @@
-import React, {useEffect, useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Spinner } from 'react-bootstrap';
 import { getAppointments, getClients, getCars, getServices, getEmployees, getWashBays, createAppointment, updateAppointment, deleteAppointment } from '../api/api';
-import {formatDateTime, toDateTimeLocal} from '../functions/Functions';
+import { formatDateTime, toDateTimeLocal } from '../functions/Functions';
 import { DataTable } from "./components/DataTable";
 import { AppointmentModal } from "../modals/AppointmentModal";
 import TableEditor from '../components/TableEditor';
 import { useCrud } from '../hooks/useCrud';
+import { useMediaQuery } from '../hooks/useMediaQuery';
 
 // Вспомогательные функции (без изменений)
 const getStatusText = (status) => {
@@ -33,6 +34,9 @@ const getStatusClass = (status) => {
 };
 
 const Appointments = () => {
+    // --- Определяем мобильное устройство ---
+    const isMobile = useMediaQuery('(max-width: 768px)');
+
     // --- Данные для формы ---
     const initialForm = {
         dateTime: '',
@@ -77,7 +81,7 @@ const Appointments = () => {
     const [employees, setEmployees] = useState([]);
     const [bays, setBays] = useState([]);
 
-    // Загрузка справочников (можно вынести в отдельный хук, но для простоты оставим здесь)
+    // Загрузка справочников
     React.useEffect(() => {
         const loadDicts = async () => {
             try {
@@ -127,8 +131,8 @@ const Appointments = () => {
 
     return (
         <>
-            <TableEditor tableName="appointments" allColumns={allColumns}>
-                {({ visibleColumns }) => (
+            <TableEditor tableName="appointments" allColumns={allColumns} isMobile={isMobile}>
+                {({ visibleColumns, isEditing, onReorder }) => (
                     <>
                         {loading ? (
                             <div className="text-center my-5">
@@ -144,6 +148,8 @@ const Appointments = () => {
                                 addButton={addButton}
                                 onEdit={openEdit}
                                 onDelete={del}
+                                onReorder={onReorder}
+                                isMobile={isMobile}
                             />
                         )}
                     </>

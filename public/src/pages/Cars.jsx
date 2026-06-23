@@ -5,8 +5,12 @@ import { DataTable } from "./components/DataTable";
 import TableEditor from '../components/TableEditor';
 import { useCrud } from '../hooks/useCrud';
 import EntityModal from "./components/EntityModal";
+import {useMediaQuery} from "../hooks/useMediaQuery";
 
 const Cars = () => {
+    // --- Определяем мобильное устройство ---
+    const isMobile = useMediaQuery('(max-width: 768px)');
+
     // --- Данные для формы ---
     const initialForm = {
         clientIds: [],
@@ -106,8 +110,8 @@ const Cars = () => {
 
     return (
         <>
-            <TableEditor tableName="cars" allColumns={allColumns}>
-                {({ visibleColumns }) => (
+            <TableEditor tableName="cars" allColumns={allColumns} isMobile={isMobile}>
+                {({ visibleColumns, isEditing, onReorder }) => (
                     <>
                         {loading ? (
                             <div className="text-center my-5">
@@ -123,6 +127,8 @@ const Cars = () => {
                                 addButton={addButton}
                                 onEdit={openEdit}
                                 onDelete={del}
+                                onReorder={onReorder}
+                                isMobile={isMobile}
                             />
                         )}
                     </>
