@@ -129,6 +129,7 @@ const Cars = () => {
                                 onDelete={del}
                                 onReorder={onReorder}
                                 isMobile={isMobile}
+                                isEditing={isEditing}
                             />
                         )}
                     </>

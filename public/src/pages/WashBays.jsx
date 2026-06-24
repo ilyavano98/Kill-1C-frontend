@@ -107,6 +107,7 @@ const WashBays = () => {
                                 onDelete={del}
                                 onReorder={onReorder}
                                 isMobile={isMobile}
+                                isEditing={isEditing}
                             />
                         )}
                     </>

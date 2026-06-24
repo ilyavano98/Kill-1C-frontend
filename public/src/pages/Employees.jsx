@@ -78,6 +78,7 @@ const Employees = () => {
                                 onDelete={del}
                                 onReorder={onReorder}
                                 isMobile={isMobile}
+                                isEditing={isEditing}
                             />
                         )}
                     </>

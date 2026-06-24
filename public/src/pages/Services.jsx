@@ -87,6 +87,7 @@ const Services = () => {
                                 onDelete={del}
                                 onReorder={onReorder}
                                 isMobile={isMobile}
+                                isEditing={isEditing}
                             />
                         )}
                     </>

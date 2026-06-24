@@ -875,3 +875,29 @@ body.dark {
 .dnd-chip button:hover {
   color: var(--danger, #dc3545);
 }
+/* Индикаторы сортировки */
+th[data-sort] {
+  user-select: none;
+}
+
+th[data-sort] span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+th[data-sort] span::after {
+  content: '';
+  display: inline-block;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  margin-left: 4px;
+}
+
+th[data-sort="asc"] span::after {
+  border-bottom: 4px solid var(--text-muted);
+}
+
+th[data-sort="desc"] span::after {
+  border-top: 4px solid var(--text-muted);
+}
