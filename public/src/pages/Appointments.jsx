@@ -150,6 +150,7 @@ const Appointments = () => {
                                 onDelete={del}
                                 onReorder={onReorder}
                                 isMobile={isMobile}
+                                isEditing={isEditing}
                             />
                         )}
                     </>

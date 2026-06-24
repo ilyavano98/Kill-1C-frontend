@@ -18,6 +18,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 
+// Компонент перетаскиваемого заголовка (для ПК)
 const SortableTh = ({ id, children, ...props }) => {
     const {
         attributes,
@@ -53,13 +54,15 @@ export const DataTable = ({
                               customFilters = {},
                               onReorder = null,
                               isMobile = false,
+                              isEditing = false, // <-- добавлен проп
                           }) => {
     const [filterColumn, setFilterColumn] = useState('');
     const [filterValues, setFilterValues] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
+    const [sortConfig, setSortConfig] = useState([]);
+
     const isMobileDevice = useMediaQuery('(max-width: 768px)');
     const effectiveIsMobile = isMobile !== undefined ? isMobile : isMobileDevice;
-
     const effectiveItemsPerPage = effectiveIsMobile ? 6 : itemsPerPage;
 
     const sensors = useSensors(
@@ -75,6 +78,7 @@ export const DataTable = ({
         return col.format ? col.format(raw) : raw;
     };
 
+    // Фильтрация
     const filteredData = data.filter(item => {
         for (const [key, value] of Object.entries(customFilters)) {
             if (value && value !== '' && item[key] !== value) return false;
@@ -107,13 +111,42 @@ export const DataTable = ({
         return displayValue.includes(search);
     });
 
-    const totalPages = Math.ceil(filteredData.length / effectiveItemsPerPage);
+    // Сортировка
+    const compareValues = (a, b, key, direction) => {
+        const valA = a[key];
+        const valB = b[key];
+        if (valA == null && valB == null) return 0;
+        if (valA == null) return direction === 'asc' ? -1 : 1;
+        if (valB == null) return direction === 'asc' ? 1 : -1;
+        if (typeof valA === 'number' && typeof valB === 'number') {
+            return direction === 'asc' ? valA - valB : valB - valA;
+        }
+        const strA = String(valA).toLowerCase();
+        const strB = String(valB).toLowerCase();
+        if (strA < strB) return direction === 'asc' ? -1 : 1;
+        if (strA > strB) return direction === 'asc' ? 1 : -1;
+        return 0;
+    };
+
+    const sortedData = [...filteredData];
+    if (sortConfig.length > 0) {
+        sortedData.sort((a, b) => {
+            for (const { key, direction } of sortConfig) {
+                const result = compareValues(a, b, key, direction);
+                if (result !== 0) return result;
+            }
+            return 0;
+        });
+    }
+
+    // Пагинация
+    const totalPages = Math.ceil(sortedData.length / effectiveItemsPerPage);
     const startIndex = (currentPage - 1) * effectiveItemsPerPage;
-    const currentItems = filteredData.slice(startIndex, startIndex + effectiveItemsPerPage);
+    const currentItems = sortedData.slice(startIndex, startIndex + effectiveItemsPerPage);
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [filterColumn, filterValues/*, customFilters*/]);
+    }, [filterColumn, filterValues, customFilters, sortConfig]);
 
     const prevDataLength = React.useRef(data.length);
     useEffect(() => {
@@ -177,6 +210,58 @@ export const DataTable = ({
 
     const filterableColumns = columns.filter(col => col.filterType);
 
+    // Обработчик сортировки – отключается в режиме редактирования
+    const handleSort = (key, e) => {
+        if (isEditing) return; // сортировка отключена
+
+        const ctrlPressed = e.ctrlKey || e.metaKey;
+
+        if (ctrlPressed) {
+            const existing = sortConfig.find(item => item.key === key);
+            if (existing) {
+                const newDirection = existing.direction === 'asc' ? 'desc' : null;
+                if (newDirection) {
+                    setSortConfig(prev => prev.map(item =>
+                        item.key === key ? { ...item, direction: newDirection } : item
+                    ));
+                } else {
+                    setSortConfig(prev => prev.filter(item => item.key !== key));
+                }
+            } else {
+                setSortConfig(prev => [...prev, { key, direction: 'asc' }]);
+            }
+        } else {
+            const existing = sortConfig.find(item => item.key === key);
+            if (existing && sortConfig.length === 1) {
+                setSortConfig([{ key, direction: existing.direction === 'asc' ? 'desc' : 'asc' }]);
+            } else {
+                setSortConfig([{ key, direction: 'asc' }]);
+            }
+        }
+    };
+
+    const getSortIndicator = (key) => {
+        const entry = sortConfig.find(item => item.key === key);
+        if (!entry) return null;
+        return entry.direction === 'asc' ? ' ▲' : ' ▼';
+    };
+
+    // Рендер заголовка – используем col.header (если есть) или col.label
+    const renderHeader = (col) => {
+        if (isEditing) {
+            // В режиме редактирования заголовок уже содержит крестик (передан из TableEditor)
+            return col.header || col.label;
+        }
+        // Обычный режим – добавляем индикатор сортировки
+        const indicator = getSortIndicator(col.key);
+        return (
+            <span style={{ cursor: 'pointer' }}>
+        {col.label}
+                {indicator && <span style={{ fontSize: '0.7rem', marginLeft: '4px' }}>{indicator}</span>}
+      </span>
+        );
+    };
+
     const columnKeys = columns.map(col => col.key);
 
     const handleDragEnd = (event) => {
@@ -190,7 +275,6 @@ export const DataTable = ({
         }
     };
 
-    // Включаем DnD только на ПК (не мобилка) и если onReorder передан
     const shouldEnableDnd = onReorder && !effectiveIsMobile;
 
     return (
@@ -229,15 +313,26 @@ export const DataTable = ({
                                 strategy={horizontalListSortingStrategy}
                             >
                                 {columns.map(col => (
-                                    <SortableTh key={col.key} id={col.key}>
-                                        {col.header || col.label}
+                                    <SortableTh
+                                        key={col.key}
+                                        id={col.key}
+                                        onClick={(e) => handleSort(col.key, e)}
+                                        style={{ cursor: isEditing ? 'default' : 'pointer' }}
+                                    >
+                                        {renderHeader(col)}
                                     </SortableTh>
                                 ))}
                             </SortableContext>
                         </DndContext>
                     ) : (
                         columns.map(col => (
-                            <th key={col.key}>{col.header || col.label}</th>
+                            <th
+                                key={col.key}
+                                onClick={(e) => handleSort(col.key, e)}
+                                style={{ cursor: isEditing ? 'default' : 'pointer' }}
+                            >
+                                {renderHeader(col)}
+                            </th>
                         ))
                     )}
                     {(onEdit || onDelete) && <th></th>}
@@ -261,14 +356,12 @@ export const DataTable = ({
                 </tbody>
             </Table>
 
-            {filteredData.length > 0 && (
+            {sortedData.length > 0 && (
                 <div className="pagination-wrapper">
                     <div className="pagination-info">
-                        {filteredData.length > 0 && (
-                            <span className="pagination-range">
-                {startIndex + 1}–{Math.min(startIndex + effectiveItemsPerPage, filteredData.length)} из {filteredData.length}
-              </span>
-                        )}
+            <span className="pagination-range">
+              {startIndex + 1}–{Math.min(startIndex + effectiveItemsPerPage, sortedData.length)} из {sortedData.length}
+            </span>
                     </div>
                     <div className="pagination-controls">
                         <Button
