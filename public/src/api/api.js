@@ -86,3 +86,53 @@ export const getLoadDashboard = (date) => api.get('/load-dashboard', { params: {
 // Поиск
 export const search = (query) => api.get('/search', { params: { q: query } });
 export default api;
+
+// ---- Эндпоинты для виджетов (временное хранилище в localStorage) ----
+const WIDGETS_STORAGE_KEY = 'widgets_data';
+
+// Получить все виджеты (админ)
+export const getWidgets = () => {
+    const data = localStorage.getItem(WIDGETS_STORAGE_KEY);
+    return Promise.resolve(data ? JSON.parse(data) : []);
+};
+
+// Создать виджет (админ)
+export const createWidget = (widget) => {
+    const widgets = JSON.parse(localStorage.getItem(WIDGETS_STORAGE_KEY) || '[]');
+    const newWidget = { ...widget, id: Date.now().toString(), createdAt: new Date().toISOString() };
+    widgets.push(newWidget);
+    localStorage.setItem(WIDGETS_STORAGE_KEY, JSON.stringify(widgets));
+    return Promise.resolve(newWidget);
+};
+
+// Обновить виджет (админ)
+export const updateWidget = (id, data) => {
+    const widgets = JSON.parse(localStorage.getItem(WIDGETS_STORAGE_KEY) || '[]');
+    const index = widgets.findIndex(w => w.id === id);
+    if (index === -1) return Promise.reject('Not found');
+    widgets[index] = { ...widgets[index], ...data, updatedAt: new Date().toISOString() };
+    localStorage.setItem(WIDGETS_STORAGE_KEY, JSON.stringify(widgets));
+    return Promise.resolve(widgets[index]);
+};
+
+// Удалить виджет (админ)
+export const deleteWidget = (id) => {
+    const widgets = JSON.parse(localStorage.getItem(WIDGETS_STORAGE_KEY) || '[]');
+    const filtered = widgets.filter(w => w.id !== id);
+    localStorage.setItem(WIDGETS_STORAGE_KEY, JSON.stringify(filtered));
+    return Promise.resolve();
+};
+
+// Получить конфиг виджета по ID (публичный)
+export const getWidgetConfig = (id) => {
+    const widgets = JSON.parse(localStorage.getItem(WIDGETS_STORAGE_KEY) || '[]');
+    const widget = widgets.find(w => w.id === id);
+    if (!widget) return Promise.reject('Not found');
+    return Promise.resolve(widget.config);
+};
+
+// Отправить заявку из виджета (публичный)
+export const submitWidgetForm = (id, data) => {
+    console.log(`Submit from widget ${id}:`, data);
+    return Promise.resolve({ success: true });
+};

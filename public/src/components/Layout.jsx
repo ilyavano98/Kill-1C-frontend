@@ -180,6 +180,7 @@ const Layout = () => {
     { path: '/carwashes', icon: 'bi-building', label: 'Мойки' },
     { path: '/washbays', icon: 'bi-geo-alt', label: 'Моечные места' },
     { path: '/load-dashboard', icon: 'bi-calendar-week', label: 'Загрузка моек' },
+    ...(user?.role === 'ROLE_ADMIN' ? [{ path: '/settings', icon: 'bi-gear', label: 'Настройки' }] : []),
   ];
 
   // Выход
