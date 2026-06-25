@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {Spinner} from "react-bootstrap";
 
-const ProtectedRoute = ({ children }) => {
+const AdminRoute = ({ children }) => {
     const { user, loading } = useAuth();
 
     if (loading) return <div className="text-center my-5">
@@ -11,7 +11,11 @@ const ProtectedRoute = ({ children }) => {
         <p className="mt-2">Загрузка данных...</p>
     </div>;
 
-    return user ? children : <Navigate to="/landing" replace />;
+    if (!user) return <Navigate to="/login" replace />;
+
+    if (user.role !== 'ROLE_ADMIN') return <Navigate to="/" replace />;
+
+    return children;
 };
 
-export default ProtectedRoute;
+export default AdminRoute;

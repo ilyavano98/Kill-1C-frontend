@@ -20,6 +20,9 @@ import {Provider} from "react-redux";
 import { configureStore } from '@reduxjs/toolkit';
 import configReducer from './features/config/configSlice'; // ваш слайс
 import { NotificationProvider } from './components/NotificationProvider';
+import Settings from "./pages/Settings";
+import WidgetEditor from "./pages/WidgetEditor";
+import AdminRoute from "./components/AdminRoute";
 
 // Создаём store
 const store = configureStore({
@@ -50,6 +53,16 @@ function App() {
                                 <Route path="/carwashes" element={<CarWashes />} />
                                 <Route path="/washbays" element={<WashBays />} />
                                 <Route path="/load-dashboard" element={<LoadDashboard />} />
+                                <Route path="/settings" element={
+                                    <AdminRoute>
+                                        <Settings />
+                                    </AdminRoute>
+                                } />
+                                <Route path="/settings/widgets" element={
+                                    <AdminRoute>
+                                        <WidgetEditor />
+                                    </AdminRoute>
+                                } />
                             </Route>
 
                             <Route path="*" element={<Navigate to="/landing" replace />} />
