@@ -37,6 +37,7 @@ export const WidgetEditor = () => {
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState(null);
     const navigate = useNavigate();
+    const MAIN_HOST = process.env.REACT_APP_MAIN_HOST;
 
     useEffect(() => {
         loadWidget();
@@ -362,7 +363,7 @@ export const WidgetEditor = () => {
                                 <Form.Control
                                     as="textarea"
                                     rows={5}
-                                    value={`<script src="https://your-domain.com/widget.js?id=${widget.id}"></script>`}
+                                    value={`<script src="${MAIN_HOST}/widget.js?id=${widget.id}&v=${widget.version}"></script>`}
                                     readOnly
                                 />
                             </Form.Group>

@@ -1,0 +1,123 @@
+/* Базовые стили для виджета – изолированы через class-префикс */
+.crm-widget-container {
+    all: initial;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.crm-widget-button {
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    transition: transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.crm-widget-button:hover {
+    transform: scale(1.05);
+}
+
+.crm-widget-form {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    width: 320px;
+    max-width: calc(100vw - 40px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    bottom: 70px;
+    right: 0;
+    display: none;
+}
+
+.crm-widget-form.open {
+    display: block;
+}
+
+.crm-widget-form h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 18px;
+    color: #1f2937;
+}
+
+.crm-widget-form .field-group {
+    margin-bottom: 12px;
+}
+
+.crm-widget-form label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: #374151;
+}
+
+.crm-widget-form input,
+.crm-widget-form select,
+.crm-widget-form textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.crm-widget-form input:focus,
+.crm-widget-form select:focus,
+.crm-widget-form textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.crm-widget-form .submit-btn {
+    width: 100%;
+    padding: 10px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.crm-widget-form .submit-btn:hover {
+    background: #1d4ed8;
+}
+
+.crm-widget-form .submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.crm-widget-form .message {
+    padding: 12px;
+    border-radius: 6px;
+    margin-top: 12px;
+    text-align: center;
+}
+
+.crm-widget-form .message.success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.crm-widget-form .message.error {
+    background: #fecaca;
+    color: #991b1b;
+}
